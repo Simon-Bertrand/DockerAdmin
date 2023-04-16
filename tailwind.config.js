@@ -2,6 +2,7 @@
 const colors = require('tailwindcss/colors')
 
 module.exports = {
+  dark : "class", 
   content: [
     './app/**/*.{js,jsx,tsx}',
     './node_modules/@tremor/**/*.{js,jsx,tsx}',
@@ -10,7 +11,7 @@ module.exports = {
   theme : {
     colors: {
       ...colors,
-      da: {grey : '#121212'},
+      dockeradmin: {grey : '#121212'},
     },
     
   },

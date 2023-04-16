@@ -41,6 +41,14 @@ __pycache__/
 *$py.class
 .venv/
 .ipynb_checkpoints
+*.ipynb/
+
+#env
+.env
 
 #ide
 .vscode/
+
+#prisma
+/db/store.db-journal
+/db/migrations
