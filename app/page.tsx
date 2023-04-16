@@ -1,91 +1,117 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from './page.module.css'
+import { Card, Metric, Text, Flex, Grid, Title, BarList } from '@tremor/react';
+import Chart from './chart';
 
-const inter = Inter({ subsets: ['latin'] })
+const website = [
+  { name: '/home', value: 1230 },
+  { name: '/contact', value: 751 },
+  { name: '/gallery', value: 471 },
+  { name: '/august-discount-offer', value: 280 },
+  { name: '/case-studies', value: 78 }
+];
 
-export default function Home() {
+const shop = [
+  { name: '/home', value: 453 },
+  { name: '/imprint', value: 351 },
+  { name: '/shop', value: 271 },
+  { name: '/pricing', value: 191 }
+];
+
+const app = [
+  { name: '/shop', value: 789 },
+  { name: '/product-features', value: 676 },
+  { name: '/about', value: 564 },
+  { name: '/login', value: 234 },
+  { name: '/downloads', value: 191 }
+];
+
+const data = [
+  {
+    category: 'Website',
+    stat: '10,234',
+    data: website
+  },
+  {
+    category: 'Online Shop',
+    stat: '12,543',
+    data: shop
+  },
+  {
+    category: 'Mobile App',
+    stat: '2,543',
+    data: app
+  }
+];
+
+const dataFormatter = (number: number) =>
+  Intl.NumberFormat('us').format(number).toString();
+
+const categories: {
+  title: string;
+  metric: string;
+  metricPrev: string;
+}[] = [
+  {
+    title: 'Sales',
+    metric: '$ 12,699',
+    metricPrev: '$ 9,456'
+  },
+  {
+    title: 'Profit',
+    metric: '$ 40,598',
+    metricPrev: '$ 45,564'
+  },
+  {
+    title: 'Customers',
+    metric: '1,072',
+    metricPrev: '856'
+  }
+];
+
+export default function PlaygroundPage() {
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <main className="p-4 md:p-10 mx-auto max-w-7xl">
+      <Grid className="gap-6" numColsSm={2} numColsLg={3}>
+        {categories.map((item) => (
+          <Card key={item.title}>
+            <Flex alignItems="start">
+              <Text>{item.title}</Text>
+            </Flex>
+            <Flex
+              className="space-x-3 truncate"
+              justifyContent="start"
+              alignItems="baseline"
+            >
+              <Metric>{item.metric}</Metric>
+              <Text className="truncate">from {item.metricPrev}</Text>
+            </Flex>
+          </Card>
+        ))}
+      </Grid>
+      <Grid className="mt-8 gap-6" numColsSm={2} numColsLg={3}>
+        {data.map((item) => (
+          <Card key={item.category}>
+            <Title>{item.category}</Title>
+            <Flex
+              className="space-x-2"
+              justifyContent="start"
+              alignItems="baseline"
+            >
+              <Metric>{item.stat}</Metric>
+              <Text>Total views</Text>
+            </Flex>
+            <Flex className="mt-6">
+              <Text>Pages</Text>
+              <Text className="text-right">Views</Text>
+            </Flex>
+            <BarList
+              className="mt-2"
+              data={item.data}
+              valueFormatter={dataFormatter}
             />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-        <div className={styles.thirteen}>
-          <Image src="/thirteen.svg" alt="13" width={40} height={31} priority />
-        </div>
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://beta.nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={inter.className}>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p className={inter.className}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+          </Card>
+        ))}
+      </Grid>
+      <Chart />
     </main>
-  )
+  );
 }
