@@ -1,8 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require('tailwindcss/colors')
+const { fontFamily } = require('tailwindcss/defaultTheme')
 
 module.exports = {
-  dark : "class", 
+  darkMode : 'class', 
   content: [
     './app/**/*.{js,jsx,tsx}',
     './node_modules/@tremor/**/*.{js,jsx,tsx}',
@@ -11,9 +12,16 @@ module.exports = {
   theme : {
     colors: {
       ...colors,
-      dockeradmin: {grey : '#121212'},
+      dockeradmin: {
+        darkgrey : '#121212',
+        darkgrey_secondary : '#1e1e1e',
+        darkgrey_tertiary : '#363636',
+        lightgrey : '#f9f9f9',
+        lightgrey_secondary : "#ececec"
+      },
     },
-    
+
   },
+  
   plugins: [],
 };

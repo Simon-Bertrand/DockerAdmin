@@ -15,7 +15,7 @@ export const detectDockerCompose = (container) => {
 export const parseContainerName = (container) => container.Name.slice(1)
 export const parseContainerState = (containerState) => {
     switch (containerState) {
-      case "running" : return {"decorationColor" : "green", "deltaType":"increase"}
+      case "running" : return {"decorationColor" : "emerald", "deltaType":"increase"}
       case "paused" : return {"decorationColor" : "orange", "deltaType":"unchanged"}
       case "exited" : return {"decorationColor" : "red", "deltaType":"decrease"}
       default : return {}

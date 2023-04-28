@@ -11,11 +11,19 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
+        source: "/back/:path*",
         destination: "http://localhost:5000/:path*",
       },
     ]
-},
+  },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"]
+    });
+
+    return config;
+  }
 };
 
 module.exports = nextConfig;

@@ -1,57 +1,43 @@
 'use client';
 
-import { Fragment } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import { Disclosure, Menu, Transition } from '@headlessui/react';
-import {CloudIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { signIn, signOut } from 'next-auth/react';
-import Image from 'next/image';
-import { Bold, Flex , Text} from '@tremor/react';
-import { Bars3Icon, MoonIcon } from '@heroicons/react/24/solid';
-import Link from 'next/link';
-import { AppContextSchema, useAppContext } from '../context/app';
+import { useRef } from 'react';
 
+import { signIn, useSession } from 'next-auth/react';
+import {  Button, Card, Flex , Grid, Text, TextInput} from '@tremor/react';
 import LogoComponent from './logo';
-import { robotoMedium } from '../fonts/register';
-import { useLocalStorage } from 'usehooks-ts';
-const navigation = [
-  { name: 'Home', href: '/', active : (pathname : string) => pathname === "/"},
-  { name: 'Containers', href: '/containers',},
-  { name: 'Images', href: '/images'},
-  { name: 'Swarm', href: '/swarm'}
-];
 
+export default function LogInComponent() {
+  const onConnect = async (e) => {
+    e.preventDefault()
+      await signIn("user-login", {
+        ...Object.fromEntries(new FormData(e.target)),
+        redirect:false,
+    }).then((x)=> {
+      console.log(x)
+    })
 
-
-export default function Navbar({ user }: { user: any }) {
-  const {store, setStore} = useAppContext()
-  const [isDarkTheme, setDarkTheme] = useLocalStorage('themeMode', "true")
-  const pathname = usePathname()
-  
-  const changeThemeMode = () => {
-    setDarkTheme(curr => curr==="true"?"false":"true")
-    if (isDarkTheme==="true") { document.documentElement.classList.add("dark") } 
-    else { document.documentElement.classList.remove("dark") }
   }
 
   return (
     <>
-    <div className='navbar'>
-        <Flex justifyContent='between' alignItems={undefined} className='h-full w-3/4 mx-auto gap-x-6'>
-          <div className='text-xl'>
-            <LogoComponent size="md" justifyContent={undefined} / >
-          </div>
-          <Flex justifyContent='start' alignItems={"center"} className={`h-full gap-x-1`}>
-            {Object.keys(navigation).map(x => <Link className={`h-full flex items-center text-center px-2 font-light ${(navigation[x].active??((y)=> y.startsWith(navigation[x].href)))(pathname)?"border-b-2 dark:border-white border-black":""}`} href={navigation[x].href}>{navigation[x].name}</Link>)}
-          </Flex>
-          
-          <Flex justifyContent='end' className='gap-x-3'>
-            <MoonIcon onClick={changeThemeMode} className='h-6 cursor-pointer' />
-            <Bars3Icon className='h-9' />
-          </Flex>
-          
-        </Flex>
-    </div>
+      <Card className='w-[50%] mx-auto'>
+        
+        <LogoComponent size='lg' justifyContent='center' />
+        <Grid className='w-1/2 mx-auto gap-4'>
+          <h1 className={`pt-2`}>Connect</h1>
+          <form onSubmit={onConnect}>
+            <TextInput name='login' placeholder="Login" />
+            <TextInput name="password" type='password' placeholder="Password"  />
+            
+
+            <Flex justifyContent='end'>
+              <Button size="md" >
+                Connect
+              </Button>
+            </Flex>
+          </form>
+        </Grid>
+    </Card>
     </>
   );
 }

@@ -59,9 +59,9 @@ class ContainersRoute:
                 payload_schema = ContainerSchema(many=True)
             )
     
-        @app.route('/containers/<name_or_id>')
+        @app.route('/containers/<string:name_or_id>')
         def container(name_or_id): return Answer.SUCCEED(
-                current_app.docker.containers.get(name_or_id).attrs,
+                current_app.system.docker.containers.get(name_or_id).attrs,
                 "Succesfully received the container",
                 payload_schema = ContainerSchema()
         )

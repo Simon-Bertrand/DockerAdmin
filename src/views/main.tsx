@@ -7,7 +7,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export const MainComponent : React.FunctionComponent<any> = ({ children }) : JSX.Element  => {
     const {store, setStore} = useAppContext();
-    console.log(store)
 
     return (
         <>
@@ -22,7 +21,7 @@ export const MainComponent : React.FunctionComponent<any> = ({ children }) : JSX
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="dark"
+            theme={localStorage.themeMode === "true" ?"dark":"light"}
             limit={3}
             />
         </>

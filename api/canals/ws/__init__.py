@@ -33,14 +33,14 @@ class SocketIOImplementation:
         @socketio.on('subscribe_logs')
         def subscribe_logs(container_name):
             
-            try: app.docker.containers.get(container_name)
+            try: app.system.docker.containers.get(container_name)
             except Exception as e: console.log(f"Couldnt subscribe container name ({container_name}) is unknown"); return None
 
             RoomsActive.add_to_room("logs~#"+container_name)
 
             @copy_current_request_context
             def execute(signal = None):
-                for el in app.docker.containers.get(container_name).logs(stream=True, tail=50):
+                for el in app.system.docker.containers.get(container_name).logs(stream=True, tail=50):
                     if signal.is_set(): console.log("StoppedLogs stream"); return
                     emit("logs", el.decode(), to="logs~#"+container_name)
         
@@ -63,8 +63,8 @@ class SocketIOImplementation:
         @socketio.on('subscribe_stats')
         def subscribe_stats(container_name):
 
-            try: app.docker.containers.get(container_name)
-            except Exception as e: console.log("Couldnt subscrive container na,e is unknown"); return None
+            try: app.system.docker.containers.get(container_name)
+            except Exception as e: console.log("Couldnt subscribe container name is unknown", e); return None
 
 
             RoomsActive.add_to_room("stats~#"+container_name)
@@ -76,7 +76,7 @@ class SocketIOImplementation:
                 val=[None]
                 DockerCli.stream_process("stats", container_name, val, DockerCliStats.parse, signal=signal)
 
-                for el in app.docker.containers.get(container_name).stats(stream=True, decode=True):
+                for el in app.system.docker.containers.get(container_name).stats(stream=True, decode=True):
                     if signal.is_set() : return 
                     if i ==0 :
                         if val[0] is not None:

@@ -2,3 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
+.dark {
+    @apply  bg-dockeradmin-darkgrey ;
+}
+body::-webkit-scrollbar {
+    display: none;
+}
+  
+body::-webkit-scrollbar-button {
+    display: none;
+}
+
+body {
+    -ms-overflow-style:none;
+}
+
+h1, h2, h3, h4, h5, h6, b, i, a, .tremor-TableCell-root, .tremor-TableHeaderCell-root, .tremor-Tab-text, .navbar{
+    @apply dark:text-white ;
+}
+
+h1 {
+    font-size: xx-large;
+}
+h2 {
+    font-size: x-large;
+}
+h3 {
+    font-size: large;
+}
+h4 {
+    font-size: medium;
+}
+h5 {
+    font-size: small;
+}
+h6 {
+    font-size: x-small;
+}
+
+.card-color-1 {
+    @apply  bg-dockeradmin-lightgrey dark:bg-dockeradmin-darkgrey_secondary
+}
+
+.card-color-2 {
+    @apply  bg-white dark:bg-stone-800
+}
+
+.bgcolor {
+    @apply  bg-dockeradmin-lightgrey dark:bg-dockeradmin-darkgrey 
+}
+
+.navbar {
+    @apply h-12  bg-dockeradmin-lightgrey_secondary  dark:bg-dockeradmin-darkgrey_secondary
+}
+
+.badge {
+    @apply px-2 py-1 rounded-full bg-dockeradmin-lightgrey_secondary dark:bg-dockeradmin-darkgrey_tertiary text-sm font-semibold
+}
+
+*::-webkit-scrollbar,
+*::-webkit-scrollbar-thumb {
+    overflow: overlay;
+  width: 26px;
+  border-radius: 13px;
+  background-clip: padding-box;
+  border: 10px solid transparent;
+  @apply text-black dark:text-white 
+}
+
+*::-webkit-scrollbar-thumb {        
+  box-shadow: inset 0 0 0 10px;
+}
+
+.tremor-Card-root {
+    @apply !ring-0
+}

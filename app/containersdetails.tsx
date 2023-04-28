@@ -35,8 +35,11 @@ import {
 import { useEffect, useState } from "react";
 import { socket } from "../src/socket/core";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { detectTraefik, parsePorts, parseTraefikRouterRules } from "./containerstable";
 import { SpinnerComponent } from "../src/widgets/spinner/loading";
+import { useAppContext } from "@/src/context/app";
+import { Answer, HTTPResponse } from "@/src/fetchs/response";
+import { detectTraefik, parseTraefikRouterRules } from "@/src/utils/traefik";
+import { parsePorts } from "@/src/utils/docker";
 
 const round = (value : number, precision : number) => {
   return Math.floor((value * Math.pow(10,precision)))/Math.pow(10,precision)
@@ -78,10 +81,22 @@ const PageMap =  (container) =>  {
 }
 
 
-export default function ContainersDetails({ container }: { container: any }) {
+export default function ContainersDetails({ httpResponseData }: { httpResponseData: any }) {
   const [selectedView, setSelectedView] = useState("");
+  const {store, setStore} = useAppContext()
+
+  let container = null  as any|null 
+
+  new HTTPResponse(httpResponseData)
+  .onDockerClientUnavailable(setStore)
+  .onSuccess(ans => {
+    console.log('here', ans.payload)
+    container = ans.payload
+  })
+
   
   return (
+    container && 
     <>
       <TabList
       value={selectedView}
@@ -106,11 +121,11 @@ export function InformationsContainersDetails({ container }: { container: any })
   return (
     <>
     <Grid numColsMd={2} numColsLg={3} className="gap-6 mt-6">
-      <Card className="max-w-md mx-auto" decoration="top" decorationColor={container.State.Status === "running"?"green":"gray"}>
+      <Card className="max-w-md mx-auto card-color-1" decoration="top" decorationColor={container.State.Status === "running"?"green":"gray"}>
         <Flex justifyContent="start">
-          <Text>
+          <h4>
             <Bold>State</Bold>
-          </Text>
+          </h4>
         </Flex>
 
         <Flex className="mt-2">
@@ -121,12 +136,12 @@ export function InformationsContainersDetails({ container }: { container: any })
               className="space-x-2"
             >
             
-              <Text>Status :</Text>
-              <Text className="uppercase">&nbsp;<Bold>{container.State.Status}</Bold></Text>
+              <h4>Status :</h4>
+              <h4 className="uppercase">&nbsp;<Bold>{container.State.Status}</Bold></h4>
               {container.State.Status === "running" && <div className="flex justify-center items-center h-full">
                   <div className="flex justify-center items-center  rounded-sm p-2">
                       <div className="flex h-5 w-5 items-center justify-center rounded-full animate-spin bg-gradient-to-tr from-green-900 to-green-500">
-                          <div className="h-3 w-3 rounded-full bg-white "></div>
+                          <div className="h-3 w-3 rounded-full bg-white dark:bg-stone-800 "></div>
                       </div>
             
                   </div>
@@ -140,7 +155,7 @@ export function InformationsContainersDetails({ container }: { container: any })
               
             </Flex>
           </div>
-          <Text>PID : <Bold>{container.State.Pid} ({container.State.ExitCode})</Bold></Text>
+          <h4>PID : <Bold>{container.State.Pid} ({container.State.ExitCode})</Bold></h4>
         </Flex>
     
           
@@ -191,57 +206,51 @@ export function InformationsContainersDetails({ container }: { container: any })
       }
       </Card>
  
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto card-color-1">
         <Flex justifyContent="start">
-          <Text>
+          <h5>
             <Bold>Entity</Bold>
-          </Text>
+          </h5>
          
         </Flex>
 
         <List className="mt-2">
           <ListItem>
             <div>
-              <Text>
+              <h5>
                 <Bold>Name :</Bold> {container.Name}
-              </Text>
-              <Text>
+              </h5>
+              <h5>
                 <Bold>Args :</Bold> {container.Args.join(' ')}
-              </Text>
-              <Text>
+              </h5>
+              <h5>
                 <Bold>Id :</Bold> <span title={container.Id}>{shortenString(container.Id,30)}</span>
-              </Text>
-              <Text>
+              </h5>
+              <h5>
                 <Bold>Image :</Bold> <span title={container.Image}>{shortenString(container.Image,30)}</span>
-              </Text>
-              <Text>
+              </h5>
+              <h5>
                 <Bold>Restart Count :</Bold> {container.RestartCount}
-              </Text>
+              </h5>
             </div>
           </ListItem>
 
         </List>
       </Card>
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto card-color-1">
         <Flex justifyContent="start">
-          <Text>
             <Bold>Config</Bold>
-          </Text>
-         
         </Flex>
 
         <List className="mt-4">
           <ListItem>
-            <div>
-              <Text>
+            <h5>
                 <Bold>Image :</Bold> {container.Config.Image}
-              </Text>
-    
-            </div>
+            </h5>
           </ListItem>
         </List>
         <Flex>
-          <Text><Bold>Labels : </Bold></Text>
+          <Bold>Labels : </Bold>
           <Dropdown
               className="mt-2 w-3/4"
               placeholder="Select a label"
@@ -260,12 +269,9 @@ export function InformationsContainersDetails({ container }: { container: any })
               
       </Card>
 
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto card-color-1">
         <Flex justifyContent="start">
-          <Text>
             <Bold>Host Config</Bold>
-          </Text>
-         
         </Flex>
 
         <Table>
@@ -288,11 +294,9 @@ export function InformationsContainersDetails({ container }: { container: any })
         </Table>
       </Card>
 
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto card-color-1">
         <Flex justifyContent="between">
-          <Text>
             <Bold>Network</Bold>
-          </Text>
           <Dropdown
               className="mt-2 w-3/4"
               onValueChange={setNetworkSelected} 
@@ -328,12 +332,9 @@ export function InformationsContainersDetails({ container }: { container: any })
         </Table>
       </Card>
 
-      <Card className="max-w-md mx-auto">
+      <Card className="max-w-md mx-auto card-color-1">
         <Flex justifyContent="start">
-          <Text>
             <Bold>Service's domains</Bold>
-          </Text>
-         
         </Flex>
 
         <List className="mt-4">
@@ -352,11 +353,11 @@ export function EnvironmentContainersDetails({ container }: { container: any }) 
   return (
     <>
      <Grid numColsMd={1} numColsLg={1} className="gap-6 mt-6">
-      <Card className="max-w-2xl mx-auto w-full">
+      <Card className="max-w-2xl mx-auto w-full card-color-1">
         <Flex>
-        <Title>Environment variables</Title>
-        <Text>{container.Name} (#{shortenString(container.Id,30)})</Text>
-        <Text>{container.Config.Image}</Text>
+        <h3>Environment variables</h3>
+        <h5>{container.Name} (#{shortenString(container.Id,30)})</h5>
+        <h5>{container.Config.Image}</h5>
         </Flex>
         <Divider />
         <Table className="mt-5">
@@ -404,7 +405,7 @@ export function LogsContainersDetails({ container }: { container: any }) {
   return (
     <>
       <Grid numColsMd={1} numColsLg={1} className="gap-6 mt-6  h-fit ">
-      <Card className="bg-gray-800 text-white h-96 overflow-y-auto font-mono">
+      <Card className="text-white h-96 overflow-y-auto font-mono card-color-1">
           {textAeraValue.length >0 && textAeraValue.map((x)=> <p><b>&gt;&gt;&gt;</b> {x}</p>)}
       </Card>
       </Grid>
@@ -415,6 +416,7 @@ export function LogsContainersDetails({ container }: { container: any }) {
 
 export function StatisticsContainersDetails({container}) {
   const [stats, setStats] = useState<any>({})
+  console.log("here2",container)
   useEffect(() => {
     socket.emit("subscribe_stats", container.Name)
     socket.on('stats', (data) => {
@@ -442,24 +444,24 @@ export function StatisticsContainersDetails({container}) {
   return (
     <>
     <Grid numColsMd={1} numColsLg={1} className="gap-6 mt-6">
-      {(Object.keys(stats).length !== 0 && container.State.Running === "running" && <Card className="max-w-2xl mx-auto w-full">
+      {(Object.keys(stats).length !== 0 && container.State.Status === "running" && <Card className="max-w-2xl mx-auto w-full card-color-1">
 
         <Flex>
-        <Title>Statistics</Title>
-        <Text>{container.Name} (#{container.Id.slice(0,16)}...)</Text>
-        <Text>Image : {container.Config.Image}</Text>
+        <h3>Statistics</h3>
+        <h5>{container.Name} (#{container.Id.slice(0,16)}...)</h5>
+        <h5>Image : {container.Config.Image}</h5>
         </Flex>
         <Divider />
 
         <Flex className="justify-around">
-          <Text className="uppercase">CPU Usage</Text>
-          <Text className="uppercase">Memory Usage</Text>
+          <h5 className="uppercase">CPU Usage</h5>
+          <h5 className="uppercase">Memory Usage</h5>
 
          
         </Flex>
         <Flex className="justify-around">
-          <Text>({(cpu_usage??0)} %)</Text>
-          <Text>({(memory_usage??0)} %)</Text>
+          <h5>({(cpu_usage??0)} %)</h5>
+          <h5>({(memory_usage??0)} %)</h5>
         </Flex>
 
         <Flex>
@@ -485,32 +487,32 @@ export function StatisticsContainersDetails({container}) {
         </Flex>
 
         <Flex className="justify-around">
-          <Text>{(convertFileSize(cpu_use??0))} / {convertFileSize((cpu_total_use??0))}</Text>
-          <Text>{(convertFileSize(stats.memusage_usage??0))} / {convertFileSize((stats.memusage_total??0))}</Text>
+          <h5>{(convertFileSize(cpu_use??0))} / {convertFileSize((cpu_total_use??0))}</h5>
+          <h5>{(convertFileSize(stats.memusage_usage??0))} / {convertFileSize((stats.memusage_total??0))}</h5>
         </Flex>
 
        
         <Divider />
 
-        <Text>Network usage</Text>
+        <h5>Network usage</h5>
      
         <Flex className="justify-around">
-        <Metric>{convertFileSize(stats.netio_input??"")}</Metric>
-        <Metric>{convertFileSize(stats.netio_output??"")}</Metric>
+        <h2>{convertFileSize(stats.netio_input??"")}</h2>
+        <h2>{convertFileSize(stats.netio_output??"")}</h2>
         </Flex>
         <Flex className="justify-around">
-        <Text>Inputs</Text>
-        <Text>Output</Text>
+        <h5>Inputs</h5>
+        <h5>Output</h5>
         </Flex>
         <Divider />
-        <Text>Disk usage</Text>
+        <h5>Disk usage</h5>
         <Flex className="justify-around">
-        <Metric>{convertFileSize(stats.blockio_input??"")}</Metric>
-        <Metric>{convertFileSize(stats.blockio_output??"")}</Metric>
+        <h2>{convertFileSize(stats.blockio_input??"")}</h2>
+        <h2>{convertFileSize(stats.blockio_output??"")}</h2>
         </Flex>
         <Flex className="justify-around">
-        <Text>Inputs</Text>
-        <Text>Output</Text>
+        <h5>Inputs</h5>
+        <h5>Output</h5>
         </Flex>
       </Card>) || <SpinnerComponent />}
 
