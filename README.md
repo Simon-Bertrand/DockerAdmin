@@ -22,4 +22,5 @@ The features of this project :
 - Containers : Start, pause, run, recycle, real-time logs, environment variables, configurations...
 - Images : View, pull, details.
 - Swarm : [Soon]
+- Compatibility : Traefik proxy
 
