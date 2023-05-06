@@ -1,6 +1,6 @@
 import { Card, Title, Text } from '@tremor/react';
 import Search from '../../search';
-import UsersTable from '../../table';
+import UsersTable from '../../../src/widgets/table';
 
 export const dynamic = 'force-dynamic';
 

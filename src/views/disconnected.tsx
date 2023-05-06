@@ -25,7 +25,6 @@ export const DisconnectedComponent : React.FunctionComponent<any> = () : JSX.Ele
             new HTTPResponse(await HTTPFetch(UtilsApi.ping))
             .onSuccess(data => setStore(curr => {return{...curr, connected:true }}))
             .onFail((message : string) => toast.error(message))
-            console.log(store)
         }
         return(
         <>

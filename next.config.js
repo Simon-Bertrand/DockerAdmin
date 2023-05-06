@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -5,6 +6,7 @@ const nextConfig = {
   },
   experimental: {
     appDir: true,
+    serverActions : true,
     serverComponentsExternalPackages: ['@tremor/react']
   },
   reactStrictMode:false,

@@ -90,7 +90,6 @@ export default function ContainersDetails({ httpResponseData }: { httpResponseDa
   new HTTPResponse(httpResponseData)
   .onDockerClientUnavailable(setStore)
   .onSuccess(ans => {
-    console.log('here', ans.payload)
     container = ans.payload
   })
 
@@ -114,7 +113,6 @@ export default function ContainersDetails({ httpResponseData }: { httpResponseDa
 }
 
 export function InformationsContainersDetails({ container }: { container: any }) {
-  console.log(container)
   const [labelSelected , setLabelSelected] = useState("")
   const [networkSelected , setNetworkSelected] = useState(Object.keys(container.NetworkSettings.Networks)[0])
 
@@ -390,7 +388,6 @@ export function LogsContainersDetails({ container }: { container: any }) {
   useEffect(() => {
     socket.emit("subscribe_logs", container.Name)
     socket.on('logs', (data) => {
-      console.log("received logs event : ", data)
       setTextAeraValue(curr => [data, ...curr])
     });
 
@@ -416,12 +413,10 @@ export function LogsContainersDetails({ container }: { container: any }) {
 
 export function StatisticsContainersDetails({container}) {
   const [stats, setStats] = useState<any>({})
-  console.log("here2",container)
   useEffect(() => {
     socket.emit("subscribe_stats", container.Name)
     socket.on('stats', (data) => {
       setStats(data)
-      console.log("data,",data)
     });
     return () => {
       socket.emit("unsubscribe_stats", container.Name)

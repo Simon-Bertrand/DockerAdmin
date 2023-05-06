@@ -17,8 +17,8 @@ body {
     -ms-overflow-style:none;
 }
 
-h1, h2, h3, h4, h5, h6, b, i, a, .tremor-TableCell-root, .tremor-TableHeaderCell-root, .tremor-Tab-text, .navbar{
-    @apply dark:text-white ;
+h1, h2, h3, h4, h5, h6, b, i, a, .tremor-TableCell-root, .tremor-TableHeaderCell-root, .tremor-Tab-text, .navbar, .color-text{
+    @apply text-black dark:text-white ;
 }
 
 h1 {

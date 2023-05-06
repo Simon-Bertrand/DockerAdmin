@@ -10,7 +10,6 @@ export interface Answer<T> {
 
 export async function HTTPFetch<T>(api_call : () => Promise<Response>) : Promise<HTTPResponseData<T>>  {
     const data = await api_call()
-    console.log(data)
     return { answer : await data.json(), http_status: data.status} as HTTPResponseData<T>
 }
 
@@ -25,7 +24,6 @@ export class HTTPResponse<T> {
         this.data = httpResponseData
     }
     onDockerClientUnavailable(setStore : Dispatch<SetStateAction<AppContextSchema>>) {
-        console.log(this.data)
         if (this.data.http_status === 503 && this.data.answer.state === 0) { setStore(curr => {return {...curr, connected: false}})}
         return this
     }

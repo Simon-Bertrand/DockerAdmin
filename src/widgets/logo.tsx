@@ -5,30 +5,23 @@ import { leagueSpartan } from "../fonts/register";
 import DarkLogo from "@/src/logo/dark-dockeradmin.svg"
 import Logo from "@/src/logo/dockeradmin.svg"
 import { useEffect } from "react";
-import { useLocalStorage } from "usehooks-ts";
+import useDarkTheme from "../hooks/useDarkTheme";
 
-export default function LogoComponent({justifyContent, size} : {justifyContent :  "center" | "start" | "end" | "between" | "around" | "evenly" | undefined, size : "md"|"lg"}) {
-    let h, fs
-    if (size == "md") {
-        h = 6
-        fs = "xl"
-    }
-    if (size == "lg") {
-        h = 6
-        fs = "2xl"
-        
-    }
-    const [isDarkTheme, setDarkTheme] = useLocalStorage('themeMode', "true")
+function LogoComponent({justifyContent, fontSize} : {justifyContent :  "center" | "start" | "end" | "between" | "around" | "evenly" | undefined, fontSize : string}) {
+    const [isDarkTheme, setDarkTheme] = useDarkTheme()
 
-    const logo = isDarkTheme === "true"? <DarkLogo/>:<Logo />
+    const logo = isDarkTheme? <DarkLogo/>:<Logo />
 
 
-    return(
-        <Flex justifyContent={justifyContent}>
-           
-            <div className="pr-1">{logo}</div>
-            <span className={`${leagueSpartan.className} text-${fs} items-center`}>dockeradmin</span>
-        </Flex>
+    return (
+        <>
+            <Flex justifyContent={justifyContent} className="select-none">
+            
+                <div className="pr-1">{logo}</div>
+                <span className={`${leagueSpartan.className} ${fontSize} items-center`}>dockeradmin</span>
+            </Flex>
+        </>
     )
 }
 
+export default LogoComponent

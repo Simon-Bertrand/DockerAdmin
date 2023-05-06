@@ -1,19 +1,22 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import {CloudIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { signIn, signOut } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Bold, Flex , Text} from '@tremor/react';
-import { Bars3Icon, MoonIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftOnRectangleIcon, Bars3Icon, MoonIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { AppContextSchema, useAppContext } from '../context/app';
 
 import LogoComponent from './logo';
 import { robotoMedium } from '../fonts/register';
 import { useLocalStorage } from 'usehooks-ts';
+import useDarkTheme from '../hooks/useDarkTheme';
+
+
 const navigation = [
   { name: 'Home', href: '/', active : (pathname : string) => pathname === "/"},
   { name: 'Containers', href: '/containers',},
@@ -23,35 +26,62 @@ const navigation = [
 
 
 
-export default function Navbar({ user }: { user: any }) {
-  const {store, setStore} = useAppContext()
-  const [isDarkTheme, setDarkTheme] = useLocalStorage('themeMode', "true")
+export default function Navbar({user} : {user:any}) {
+  const [isDarkTheme, changeDarkTheme] = useDarkTheme()
   const pathname = usePathname()
-  
-  const changeThemeMode = () => {
-    setDarkTheme(curr => curr==="true"?"false":"true")
-    if (isDarkTheme==="true") { document.documentElement.classList.add("dark") } 
-    else { document.documentElement.classList.remove("dark") }
+  const accountMenu = useRef(null)
+  const toggleAccountMenu = () => {
+    if (accountMenu.current) {
+      if (accountMenu.current.classList.contains("invisible")) {
+        accountMenu.current.classList.replace("invisible", "visible")
+      } else if (accountMenu.current.classList.contains("visible")) {
+        accountMenu.current.classList.replace("visible", "invisible")
+      }
+    }
   }
-
+  
   return (
     <>
-    <div className='navbar'>
-        <Flex justifyContent='between' alignItems={undefined} className='h-full w-3/4 mx-auto gap-x-6'>
-          <div className='text-xl'>
-            <LogoComponent size="md" justifyContent={undefined} / >
-          </div>
-          <Flex justifyContent='start' alignItems={"center"} className={`h-full gap-x-1`}>
-            {Object.keys(navigation).map(x => <Link className={`h-full flex items-center text-center px-2 font-light ${(navigation[x].active??((y)=> y.startsWith(navigation[x].href)))(pathname)?"border-b-2 dark:border-white border-black":""}`} href={navigation[x].href}>{navigation[x].name}</Link>)}
+      <div className='navbar'>
+          <Flex justifyContent='between' alignItems={undefined} className='h-full w-3/4 mx-auto gap-x-6'>
+            <div className='text-xl'>
+              <LogoComponent fontSize="text-lg" justifyContent={undefined} / >
+            </div>
+            <Flex justifyContent='start' alignItems={"center"} className={`h-full gap-x-1`}>
+              {Object.keys(navigation).map(x => <Link className={`h-full flex items-center text-center px-2 font-light ${(navigation[x].active??((y)=> y.startsWith(navigation[x].href)))(pathname)?"border-b-2 dark:border-white border-black":""}`} href={navigation[x].href}>{navigation[x].name}</Link>)}
+            </Flex>
+            
+            <Flex justifyContent='end' className='gap-x-3'>
+              <MoonIcon onClick={(e) => changeDarkTheme()} className='h-6 cursor-pointer' />
+              <div className='relative'>
+                <div className='h-9 cursor-pointer select-none'>
+                  <Bars3Icon onClick={toggleAccountMenu} className="h-full"/>
+                </div>
+                <div ref={accountMenu} className='absolute top-12 w-[14vw] -translate-x-[7vw] p-3 overflow-auto rounded card-color-1 invisible z-10'>
+                  <div className='divide-y-[1px] divide-stone-500'>
+                    <div>
+                      <h3 className='text-center'>Details</h3>
+                      <p className='text-stone-500'>Login :</p><b className='color-text'>{user.login}</b>
+                      <span className='text-stone-500 italic text-xs pl-2'>(#{user.id})</span>
+                    </div>
+                    <div className='py-2 my-2 text-center'>
+                      <h3 className='text-center'>Links</h3>
+                      <Link href="/accounts" className='text-stone-500'>Manage accounts</Link>
+                    </div>
+                  </div>
+                  <div className='flex justify-end'>
+                    <button title="Disconnect" onClick={async ()=> await signOut()} className="bg-red-500 hover:bg-red-700 w-full py-1 h-8 px-2 rounded">
+                      <div className='flex justify-center'>
+                        <span>Log out</span>
+                        <ArrowLeftOnRectangleIcon height={23} />
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Flex>
           </Flex>
-          
-          <Flex justifyContent='end' className='gap-x-3'>
-            <MoonIcon onClick={changeThemeMode} className='h-6 cursor-pointer' />
-            <Bars3Icon className='h-9' />
-          </Flex>
-          
-        </Flex>
-    </div>
+      </div>
     </>
   );
 }

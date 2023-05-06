@@ -44,7 +44,6 @@ export default function ContainersTable({httpResponseData} : {httpResponseData :
     ...groupBy(data.payload.filter((x) => !('com.docker.compose.config-hash' in x.Config.Labels)), (x) => x.Name)
   }:null
 
-  console.log(dataGrouped)
 
   const [tab, setTab] = useState(Object.keys(dataGrouped)[0]);
 

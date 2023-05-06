@@ -16,11 +16,6 @@ const AppContext = createContext(
 )
 
 export const AppContextProvider = ({ children} : {children : JSX.Element}) => {
-    if (typeof window !== 'undefined') {
-        if (localStorage.getItem("themeMode") === undefined) { localStorage.setItem("themeMode", "dark")}
-    }
-
-
     const [store, setStore] = useState({
         connected: true,
     } as AppContextSchema);
