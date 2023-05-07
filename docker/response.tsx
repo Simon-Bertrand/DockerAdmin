@@ -1,15 +1,15 @@
+import { AppContextSchema } from "@/src/context/app"
 import { Dispatch, SetStateAction } from "react"
-import { AppContextSchema } from "../context/app"
 
 export interface Answer<T> {
-    payload : T[],
+    payload : T,
     message : string,
     state : number
 }
 
 
-export async function HTTPFetch<T>(api_call : () => Promise<Response>) : Promise<HTTPResponseData<T>>  {
-    const data = await api_call()
+export async function HTTPFetch<T>(api_call : Promise<Response>) : Promise<HTTPResponseData<T>>  {
+    const data = await api_call
     return { answer : await data.json(), http_status: data.status} as HTTPResponseData<T>
 }
 

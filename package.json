@@ -21,6 +21,8 @@
     "autoprefixer": "^10.4.13",
     "concurrently": "^8.0.1",
     "core-js": "^3.30.0",
+    "crypto-js": "^4.1.1",
+    "dockerode": "^3.3.5",
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.1",
     "joi": "^17.9.1",
@@ -47,7 +49,8 @@
     "trailingComma": "none"
   },
   "devDependencies": {
-    "@types/core-js": "^2.5.5"
+    "@types/core-js": "^2.5.5",
+    "@types/dockerode": "^3.3.17"
   },
   "prisma": {
     "schema": "db/schema.prisma"

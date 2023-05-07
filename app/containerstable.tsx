@@ -20,33 +20,38 @@ import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { useAppContext } from "../src/context/app";
-import { Answer, HTTPResponse, HTTPResponseData } from "../src/fetchs/response";
 import groupBy from "../src/utils/array";
 import { detectTraefik, parseTraefikRouterRules } from "../src/utils/traefik";
-import { parseContainerName, parseContainerState, parsePorts } from "../src/utils/docker";
+import { actionOnContainer } from "docker/client";
+import { IContainers } from "docker/models";
+import { parseContainerState, parsePortsList, parseContainerName } from "@/src/utils/docker";
+import { HTTPResponseData, HTTPResponse } from "docker/response";
 
 
-export default function ContainersTable({httpResponseData} : {httpResponseData : HTTPResponseData<any>}) {
+export default function ContainersTable({httpResponseData} : {httpResponseData : HTTPResponseData<IContainers[]>}) {
 
   const {store, setStore} = useAppContext()
   
 
-  let data = null  as Answer<any>|null 
+  let data = []  as IContainers[] 
 
 
   new HTTPResponse(httpResponseData)
   .onDockerClientUnavailable(setStore)
   .onSuccess(ans => data = ans)
 
+  console.log(data)
 
   const dataGrouped = data ? {
-    ...groupBy(data.payload.filter((x) => 'com.docker.compose.config-hash' in x.Config.Labels), (x) => x.Config.Labels["com.docker.compose.project"]),
-    ...groupBy(data.payload.filter((x) => !('com.docker.compose.config-hash' in x.Config.Labels)), (x) => x.Name)
-  }:null
+    ...groupBy(data.payload.filter((x) => 'com.docker.compose.config-hash' in x.Labels), (x) => x.Labels["com.docker.compose.project"]),
+    ...groupBy(data.payload.filter((x) => !('com.docker.compose.config-hash' in x.Labels)), (x) => x.Names.join())
+  }:{"":[]}
 
 
-  const [tab, setTab] = useState(Object.keys(dataGrouped)[0]);
+  const [tab, setTab] = useState(Object.keys((dataGrouped))[0]);
 
+
+  
 
 
   return (
@@ -67,7 +72,7 @@ export default function ContainersTable({httpResponseData} : {httpResponseData :
         <div className="mt-6">
          <Grid numColsSm={2} numColsLg={3} className="gap-6 ">
               {dataGrouped[tab] && dataGrouped[tab].map((item) => {
-                const containerState = parseContainerState(item.State.Status)
+                const containerState = parseContainerState(item.State)
 
                 let upDownArrow = null;
                 if (containerState.deltaType === "increase") {
@@ -77,13 +82,13 @@ export default function ContainersTable({httpResponseData} : {httpResponseData :
                 } else {
                   upDownArrow = <ArrowRightIcon className="h-4" />
                 }
-
-                const ports = detectTraefik(item) ? parseTraefikRouterRules(item) : parsePorts(item)
+                console.log({item})
+                const ports = detectTraefik(item) ? parseTraefikRouterRules(item) : parsePortsList(item)
                 return (
                   <Card key={"ff"} decoration="top" decorationColor={containerState.decorationColor} className="card-color-2">
                     <Flex alignItems="start">
-                      <h6 className="w-3/4 italic">{item.Config.Image}</h6>
-                      <Flex className={`badge w-1/4 text-${containerState.decorationColor}-500`}>{upDownArrow}{item.State.Status}</Flex>
+                      <h6 className="w-3/4 italic">{item.Image}</h6>
+                      <Flex className={`badge w-1/4 text-${containerState.decorationColor}-500`}>{upDownArrow}{item.State}</Flex>
                     </Flex>
                     <Flex
                       justifyContent="start"
@@ -96,18 +101,27 @@ export default function ContainersTable({httpResponseData} : {httpResponseData :
                       </h5>
                     </Flex>
                     <Flex className="mt-5">
-                      <PowerIcon className={ "h-6 w-6 " + (["running"].includes(item.State.Status)? "text-emerald-500 cursor-not-allowed" : "text-red-500 cursor-pointer") } />
-                      {["paused"].includes(item.State.Status)?
-                        <PlayIcon className={ "h-6 w-6 text-cyan-500 cursor-pointer"} />
+                      {
+                      ["running"].includes(item.State)?
+                        <PowerIcon className={ "h-6 w-6 text-emerald-500 cursor-not-allowed" } />
+                      :
+                      <button onClick={async (e)=> {await actionOnContainer(item.Names[0].replace("/", ""),"start")}}>
+                        <PowerIcon className={ "h-6 w-6 text-red-500 cursor-pointer" } />
+                      </button>
+                      }
+                      {["paused"].includes(item.State)?
+                        <button onClick={async (e)=> {await actionOnContainer(item.Names[0].replace("/", ""),"unpause")}}>
+                          <PlayIcon className={ "h-6 w-6 text-cyan-500 cursor-pointer"} />
+                        </button>
                       :
                       null
                       }
-                      {["running"].includes(item.State.Status)?
+                      {["running"].includes(item.State)?
                         <PauseIcon className={ "h-6 w-6 text-cyan-500 cursor-pointer" } />
                       :
                       null
                       }
-                      <ArrowPathIcon className={ "h-6 w-6 " + (["paused", "exited", "running"].includes(item.State.Status)? "text-cyan-500 cursor-pointer":"text-red-500 cursor-not-allowed") } />
+                      <ArrowPathIcon className={ "h-6 w-6 " + (["paused", "exited", "running"].includes(item.State)? "text-cyan-500 cursor-pointer":"text-red-500 cursor-not-allowed") } />
                       <ListBulletIcon className={"h-6 w-6 dark:text-white"} />
                     </Flex>
                   </Card>

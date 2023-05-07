@@ -75,9 +75,14 @@ class SocketIOImplementation:
                 i=0
                 val=[None]
                 DockerCli.stream_process("stats", container_name, val, DockerCliStats.parse, signal=signal)
+                console.log("Execute thread")
+                console.log("Execute thread", app.system.docker.containers.get(container_name))
+                console.log("Execute thread", app.system.docker.containers.get(container_name).stats())
+
 
                 for el in app.system.docker.containers.get(container_name).stats(stream=True, decode=True):
-                    if signal.is_set() : return 
+                    console.log(el)
+                    if signal.is_set() : return None
                     if i ==0 :
                         if val[0] is not None:
                             emit("stats", StatsSchema().dump({**el, **val[0][0] }), to="stats~#"+container_name)

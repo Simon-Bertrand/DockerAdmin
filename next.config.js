@@ -18,14 +18,15 @@ const nextConfig = {
       },
     ]
   },
-  webpack(config) {
+  webpack: ( config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack } ) => {
     config.module.rules.push({
       test: /\.svg$/,
       use: ["@svgr/webpack"]
     });
-
-    return config;
-  }
+     if (isServer) { config.externals.push({ bufferutil: "bufferutil", "utf-8-validate": "utf-8-validate", }); } 
+     
+     return config; 
+  }, 
 };
 
 module.exports = nextConfig;

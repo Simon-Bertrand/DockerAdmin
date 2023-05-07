@@ -32,19 +32,6 @@ export const GenericModalComponent : React.FunctionComponent<ConfirmModalProps> 
 
     const modalRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {    
-              function handleClickOutside(event) {
-                if (modalRef.current && !modalRef.current.contains(event.target)) {              
-                    props.onCancel()
-                }
-              }             
-              document.addEventListener("mousedown", handleClickOutside);
-              return () => {
-               
-                document.removeEventListener("mousedown", handleClickOutside);
-              };
-    }, [modalRef]);
-
 
     // Close when Escape
     useEffect(() => {
@@ -72,8 +59,8 @@ export const GenericModalComponent : React.FunctionComponent<ConfirmModalProps> 
                                     className="flex bg-transparent border-0 float-right text-3xl leading-none font-semibold outline-none focus:outline-none text-indigo-500"                                    
                                     onClick={props.onModalClose??props.onCancel}
                                 >
-                                    <div className="h-7 text-red-500">
-                                        <XMarkIcon/>
+                                    <div className="h-7 text-white">
+                                        <XMarkIcon height={28}/>
                                     </div>
                                 </button>
                             </div>

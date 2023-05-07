@@ -37,9 +37,10 @@ import { socket } from "../src/socket/core";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { SpinnerComponent } from "../src/widgets/spinner/loading";
 import { useAppContext } from "@/src/context/app";
-import { Answer, HTTPResponse } from "@/src/fetchs/response";
 import { detectTraefik, parseTraefikRouterRules } from "@/src/utils/traefik";
-import { parsePorts } from "@/src/utils/docker";
+import { IContainer } from "docker/models";
+import { HTTPResponse, HTTPResponseData } from "docker/response";
+import { parsePortsDetail } from "@/src/utils/docker";
 
 const round = (value : number, precision : number) => {
   return Math.floor((value * Math.pow(10,precision)))/Math.pow(10,precision)
@@ -81,18 +82,17 @@ const PageMap =  (container) =>  {
 }
 
 
-export default function ContainersDetails({ httpResponseData }: { httpResponseData: any }) {
+export default function ContainersDetails({ httpResponseData }: { httpResponseData: HTTPResponseData<IContainer> }) {
   const [selectedView, setSelectedView] = useState("");
   const {store, setStore} = useAppContext()
 
-  let container = null  as any|null 
+  let container = null as  IContainer|null
 
   new HTTPResponse(httpResponseData)
   .onDockerClientUnavailable(setStore)
   .onSuccess(ans => {
     container = ans.payload
   })
-
   
   return (
     container && 
@@ -119,7 +119,7 @@ export function InformationsContainersDetails({ container }: { container: any })
   return (
     <>
     <Grid numColsMd={2} numColsLg={3} className="gap-6 mt-6">
-      <Card className="max-w-md mx-auto card-color-1" decoration="top" decorationColor={container.State.Status === "running"?"green":"gray"}>
+      <Card className="max-w-md mx-auto card-color-1" decoration="top" decorationColor={container.State === "running"?"green":"gray"}>
         <Flex justifyContent="start">
           <h4>
             <Bold>State</Bold>
@@ -144,10 +144,10 @@ export function InformationsContainersDetails({ container }: { container: any })
             
                   </div>
               </div>}
-              {container.State.Status === "exited" && <div className="flex justify-center items-center h-full">
+              {container.State === "exited" && <div className="flex justify-center items-center h-full">
                  <XMarkIcon className="text-red-500"></XMarkIcon>
               </div>}
-              {container.State.Status === "paused" && <div className="flex justify-center items-center h-full">
+              {container.State === "paused" && <div className="flex justify-center items-center h-full">
                  <PauseIcon className="text-orange-500"></PauseIcon>
               </div>}
               
@@ -279,9 +279,9 @@ export function InformationsContainersDetails({ container }: { container: any })
               <TableHeaderCell className="text-right"> Value </TableHeaderCell>
             </TableRow>
           </TableHead>
-
+            {console.log("HostConfig", Object.keys(container.HostConfig).filter(x=> ["AutoRemove"].includes(x)))}
           <TableBody>
-            {Object.keys(container.HostConfig).map((x,i) => (
+            {Object.keys(container.HostConfig).filter(x=> ["AutoRemove"].includes(x)).map((x,i) => (
               <TableRow key={i.toString()}>
                 <TableCell>{x}</TableCell>
                 <TableCell className="text-right">{JSON.stringify(container.HostConfig[x])}</TableCell>
@@ -337,7 +337,7 @@ export function InformationsContainersDetails({ container }: { container: any })
 
         <List className="mt-4">
           <ListItem>
-              {(detectTraefik(container) ? parseTraefikRouterRules(container) : parsePorts(container))}
+              {(detectTraefik(container) ? parseTraefikRouterRules(container) : parsePortsDetail(container))}
           </ListItem>
         </List>
               
@@ -414,8 +414,10 @@ export function LogsContainersDetails({ container }: { container: any }) {
 export function StatisticsContainersDetails({container}) {
   const [stats, setStats] = useState<any>({})
   useEffect(() => {
+    console.log(container.Name)
     socket.emit("subscribe_stats", container.Name)
     socket.on('stats', (data) => {
+      console.log(data)
       setStats(data)
     });
     return () => {
@@ -423,6 +425,8 @@ export function StatisticsContainersDetails({container}) {
       socket.off("stats")
     }
   }, [])
+
+  console.log("stats", {stats})
   let cpu_usage = null
   let cpu_use = null
   let cpu_total_use = null

@@ -18,7 +18,8 @@ class Middleware:
 
         @app.after_request
         def after_request(httpResponse): 
-            if isinstance(httpResponse, HTTPResponse): return httpResponse.send()
-            else:
-                return Answer.BAD_SERVER_OUTPUT("The output value sended by the server is invalid : " + str( type(httpResponse))).send()
-        
+            console.log(httpResponse)
+            # if isinstance(httpResponse, (HTTPResponse)): return httpResponse.send()
+            # else:
+            #     return Answer.BAD_SERVER_OUTPUT("The output value sended by the server is invalid : " + str( type(httpResponse))).send()
+            return httpResponse

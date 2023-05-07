@@ -13,7 +13,8 @@ import {
   Flex,
   Button
 } from '@tremor/react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { ModalState } from './modals/ListModals';
 
 
 function GenerateButtonProps({color} : {color : string}){
@@ -23,36 +24,36 @@ function GenerateButtonProps({color} : {color : string}){
   }
 }
 
-function UpdateButton(){
-  return (<button><ListBulletIcon {...GenerateButtonProps({color:"text-cyan-500"})} /></button>)
+function UpdateButton({user, setModal}){
+  return (<button onClick={()=>setModal(curr => {return {...curr, state:0, user}})}><ListBulletIcon {...GenerateButtonProps({color:"text-cyan-500"})} /></button>)
 }
-function DeleteButton(){
-  return (<button><TrashIcon {...GenerateButtonProps({color:"text-red-500"})} /></button>)
+function DeleteButton({user, setModal}){
+  return (<button onClick={()=>setModal(curr => {return {...curr, state:2, user}})}><TrashIcon {...GenerateButtonProps({color:"text-red-500"})} /></button>)
 }
 
 export default function GenericTable(
-    { data, fields, formatCell, idField, rowExecute }:
+    { data, fields, formatCell, idField, rowExecute, setModal }:
     {
       data: object[],
       fields : string[],
       formatCell : (d : any, k : string) => JSX.Element,
       idField : string, 
-      rowExecute : {[ k : string ]:(id : string)=>void}[],
+      rowExecute : string[],
+      setModal : Dispatch<SetStateAction<ModalState>>
     }
   ) {
-
 
 
   return (
     <>
     <div className='flex justify-end pb-2'>
-      <button className="rounded text-white flex gap-2 px-2 py-1 bg-emerald-500" >Create <PlusIcon {...GenerateButtonProps({color:"text-white-500"})} /></button>
+      <button onClick={()=>setModal(curr => {return {...curr, state:1, user:{}}})}className="rounded text-white flex gap-2 px-2 py-1 bg-emerald-500" >Create <PlusIcon {...GenerateButtonProps({color:"text-white-500"})} /></button>
     </div>
     <Table>
       <TableHead>
         <TableRow>
           {fields.map(x=><TableHeaderCell>{x.charAt(0).toUpperCase()+x.slice(1)}</TableHeaderCell>)}
-          {rowExecute.map(x=>Object.keys(x)[0]).map((x)=><TableHeaderCell>{x.charAt(0).toUpperCase()+x.slice(1)}</TableHeaderCell>)}
+          {rowExecute.map((x)=><TableHeaderCell>{x.charAt(0).toUpperCase()+x.slice(1)}</TableHeaderCell>)}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -65,11 +66,10 @@ export default function GenericTable(
                     }
                     {
                     rowExecute
-                    .map(x=>[Object.keys(x)[0], Object.values(x)[0]])
                     .map(y=>{
-                      switch (y[0]) {
-                        case "update" : return <UpdateButton />
-                        case "delete" : return <DeleteButton />
+                      switch (y) {
+                        case "update" : return <UpdateButton user={d} setModal={setModal} />
+                        case "delete" : return <DeleteButton user={d} setModal={setModal} />
                         default : return <></>
                       }
                     })

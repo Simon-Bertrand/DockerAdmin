@@ -2,3 +2,5 @@ flask
 flask-socketio
 docker
 marshmallow
+aiohttp
+simple-websocket

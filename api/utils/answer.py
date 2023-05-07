@@ -47,14 +47,12 @@ class Answer:
     def SUCCEED(data : dict, message : str, **kwargs):
         return Answer.make_object(data,message, AnswerStatus.SUCCEED, **kwargs).to_http(HTTPStatus.OK)
 
+    def E404(message : str, **kwargs):
+        return Answer.make_object({}, message, AnswerStatus.FAILED, **kwargs).to_http(HTTPStatus.NOT_FOUND)
 
-class HTTPResponse(Response):
-    def __init__(self, answer : Answer, http_status : HTTPStatus):
-        self.answer = answer
-        self.http_status = http_status
-
-    def send(self):
-        return make_response(
-            jsonify(AnswerSchema().dump(self.answer)),
-            self.http_status
-        )
+class HTTPResponse():
+    def __new__(self, answer : Answer, http_status : HTTPStatus):
+          return make_response(
+            jsonify(AnswerSchema().dump(answer)),
+            http_status
+          )

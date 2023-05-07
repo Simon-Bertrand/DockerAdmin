@@ -4,7 +4,7 @@ import time
 from canals.http.ping import PingRoute
 from utils.answer import Answer
 from middleware import Middleware
-from canals.http.containers import ContainersRoute
+from canals.http.containers import Routes
 from canals.ws import SocketIOImplementation
 from utils.rooms import RoomsActive
 from utils.threads import ServerThread, ThreadUtils
@@ -42,7 +42,7 @@ class System:
         app.system.docker_connect()
     
         Middleware.init(app)
-        ContainersRoute.init(app)
+        Routes.init(app)
         SocketIOImplementation.init_events(app, socketio, RoomsActive)
         PingRoute.init(app)
 
