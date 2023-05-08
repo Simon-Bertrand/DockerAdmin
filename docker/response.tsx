@@ -8,10 +8,11 @@ export interface Answer<T> {
 }
 
 
-export async function HTTPFetch<T>(api_call : Promise<Response>) : Promise<HTTPResponseData<T>>  {
-    const data = await api_call
-    return { answer : await data.json(), http_status: data.status} as HTTPResponseData<T>
-}
+// export async function HTTPFetch<T>(api_call : Promise<Response>) : Promise<HTTPResponseData<T>>  {
+//     const data = await api_call
+//     console.log({api_call})
+//     return { answer : await data.json(), http_status: data.status} as HTTPResponseData<T>
+// }
 
 export interface HTTPResponseData<T> {
     answer : Answer<T>,

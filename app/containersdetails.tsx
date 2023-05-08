@@ -38,9 +38,11 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { SpinnerComponent } from "../src/widgets/spinner/loading";
 import { useAppContext } from "@/src/context/app";
 import { detectTraefik, parseTraefikRouterRules } from "@/src/utils/traefik";
-import { IContainer } from "docker/models";
+import { IContainer, IContainer } from "docker/models";
 import { HTTPResponse, HTTPResponseData } from "docker/response";
 import { parsePortsDetail } from "@/src/utils/docker";
+import { getContainer } from "docker/api/containers";
+import { toast } from "react-toastify";
 
 const round = (value : number, precision : number) => {
   return Math.floor((value * Math.pow(10,precision)))/Math.pow(10,precision)
@@ -82,20 +84,39 @@ const PageMap =  (container) =>  {
 }
 
 
-export default function ContainersDetails({ httpResponseData }: { httpResponseData: HTTPResponseData<IContainer> }) {
+export default function ContainersDetails({name_or_id} : {name_or_id : string}) {
   const [selectedView, setSelectedView] = useState("");
+  const [container, setContainer] = useState<IContainer>({})
+
   const {store, setStore} = useAppContext()
 
-  let container = null as  IContainer|null
+  // let container = null as  IContainer|null
 
-  new HTTPResponse(httpResponseData)
-  .onDockerClientUnavailable(setStore)
-  .onSuccess(ans => {
-    container = ans.payload
-  })
+  // new HTTPResponse(httpResponseData)
+  // .onDockerClientUnavailable(setStore)
+  // .onSuccess(ans => {
+  //   container = ans.payload
+  // })
   
+    const fetch = async () => {
+      new HTTPResponse<IContainer>(await getContainer(name_or_id))
+      .onDockerClientUnavailable(setStore)
+      .onSuccess(
+        (d)=> {
+          setContainer(d.payload)
+        }
+      )
+      .onFail((message) => {
+        toast.error("Could not fetch the containers : ", message)
+      })
+  }
+
+  useEffect(() => {
+    fetch().then(x=>x)
+  }, [])
+
   return (
-    container && 
+    Object.keys(container).length>0 && 
     <>
       <TabList
       value={selectedView}

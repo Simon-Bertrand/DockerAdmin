@@ -57,7 +57,7 @@ class Routes:
     def init(app):
 
   
-        @app.route('/<path:path>', methods=list(methods.keys()))
+        @app.route('/<path:path>', methods=["GET", "POST"])
         def catch_all(path):
             if path == path.lstrip("/"):
                 console.log(request.method)

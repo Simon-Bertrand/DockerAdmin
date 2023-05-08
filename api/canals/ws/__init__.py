@@ -8,18 +8,18 @@ from utils.docker.dockercli import DockerCli, DockerCliStats, ServerThread, Thre
 from utils.console import console
 
 
-class StatsSchema(Schema):
-    id = fields.String()
-    cpu_stats =  fields.Raw()
-    precpu_stats= fields.Raw()
-    num_procs =  fields.Integer()
-    blockio_input= fields.Integer()
-    blockio_output= fields.Integer()
-    memusage_usage= fields.Integer()
-    memusage_total= fields.Integer()
-    netio_output= fields.Integer()
-    netio_input= fields.Integer()
-    name = fields.String()
+# class StatsSchema(Schema):
+#     id = fields.String()
+#     cpu_stats =  fields.Raw()
+#     precpu_stats= fields.Raw()
+#     num_procs =  fields.Integer()
+#     blockio_input= fields.Integer()
+#     blockio_output= fields.Integer()
+#     memusage_usage= fields.Integer()
+#     memusage_total= fields.Integer()
+#     netio_output= fields.Integer()
+#     netio_input= fields.Integer()
+#     name = fields.String()
 
 
 

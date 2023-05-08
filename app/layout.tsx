@@ -23,7 +23,6 @@ export default async function RootLayout({children }: { children: React.ReactNod
           <AppWrapper>
           {children}
           </AppWrapper>
-         
         </html>
   );
 }
