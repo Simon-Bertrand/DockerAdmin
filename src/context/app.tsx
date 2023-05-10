@@ -4,7 +4,7 @@ import { SetStateAction, createContext, useContext, useState, Dispatch } from "r
 
 export interface AppContextSchema {
     connected : boolean
-    themeMode : string
+    bottomBarMessage : string
 }
 
 
@@ -18,6 +18,7 @@ const AppContext = createContext(
 export const AppContextProvider = ({ children} : {children : JSX.Element}) => {
     const [store, setStore] = useState({
         connected: true,
+        bottomBarMessage : ""
     } as AppContextSchema);
 
     return (

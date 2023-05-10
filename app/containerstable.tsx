@@ -25,11 +25,13 @@ import { detectTraefik, parseTraefikRouterRules } from "../src/utils/traefik";
 import { actionOnContainer } from "docker/client";
 import { IContainers } from "docker/models";
 import { parseContainerState, parsePortsList, parseContainerName } from "@/src/utils/docker";
-import { HTTPResponseData, HTTPResponse, Answer, HTTPFetch } from "docker/response";
+import { HTTPResponseData, HTTPResponse, Answer } from "docker/response";
 import { revalidateTag } from "next/cache";
 import { getContainers } from "docker/api/containers";
 import { toast } from "react-toastify";
+import { SpinnerComponent } from "@/src/widgets/spinner/loading";
 
+import {renderToString} from 'react-dom/server';
 
 export default function ContainersTable() {
   const {store, setStore} = useAppContext()
@@ -73,8 +75,14 @@ export default function ContainersTable() {
     const getNumberOfContainers = ()=> {
         return Object.keys(data).map(x => data[x].length).reduce((prev, curr) => prev + curr,0)
     }
-    const onActionContainer = (item : IContainers, action : "start" | "stop" | "restart" | "kill" | "update" | "pause" | "unpause" | "wait" | "attach") => {
-      actionOnContainer(item.Names[0].replace("/", ""), action).then(x=>x)
+    const onActionContainer = async (e, item : IContainers, action : "start" | "stop" | "restart" | "kill" | "update" | "pause" | "unpause" | "wait" | "attach") => {
+    
+      e.target.classList.add("animate-pulse")
+      e.target.classList.add("overflow-visible")
+      e.target.onclick=null
+      e.target.classList.replace("cursor-pointer", "cursor-not-allowed")
+
+      await actionOnContainer(item.Names[0].replace("/", ""), action).then(x=>x)
       fetch()
     }
 
@@ -106,7 +114,6 @@ export default function ContainersTable() {
                   } else {
                     upDownArrow = <ArrowRightIcon className="h-4" />
                   }
-                  console.log({item})
                   const ports = detectTraefik(item) ? parseTraefikRouterRules(item) : parsePortsList(item)
                   return (
                     <Card key={"ff"} decoration="top" decorationColor={containerState.decorationColor} className="card-color-2">
@@ -127,28 +134,37 @@ export default function ContainersTable() {
                       <Flex className="mt-5">
                         {
                         ["running"].includes(item.State)?
-                          <PowerIcon className={ "h-6 w-6 text-emerald-500 cursor-not-allowed" } />
+                          <button onClick={(e)=> onActionContainer(e, item, "stop")}>
+                            <PowerIcon className={ "h-6 w-6 text-emerald-400 cursor-pointer" } />
+                          </button>
                         :
-                        <button onClick={(e)=> onActionContainer(item, "start")}>
+                        <button onClick={(e)=> onActionContainer(e, item, "start")}>
                           <PowerIcon className={ "h-6 w-6 text-red-500 cursor-pointer" } />
                         </button>
                         }
                         {["paused"].includes(item.State)?
-                          <button onClick={(e)=> onActionContainer(item, "unpause")}>
+                          <button onClick={(e)=> onActionContainer(e, item, "unpause")}>
                             <PlayIcon className={ "h-6 w-6 text-cyan-500 cursor-pointer"} />
                           </button>
                         :
                         null
                         }
                         {["running"].includes(item.State)?
-                          <button onClick={(e)=> onActionContainer(item, "pause")}>
+                          <button onClick={(e)=> onActionContainer(e, item, "pause")}>
                             <PauseIcon className={ "h-6 w-6 text-cyan-500 cursor-pointer" } />
                           </button>
                         :
                         null
                         }
+                        {["exited"].includes(item.State)?
+                            <PlayIcon className={ "h-6 w-6 text-stone-500 cursor-not-allowed" } />
+                        :
+                        null
+                        }
                         <ArrowPathIcon className={ "h-6 w-6 " + (["paused", "exited", "running"].includes(item.State)? "text-cyan-500 cursor-pointer":"text-red-500 cursor-not-allowed") } />
-                        <ListBulletIcon className={"h-6 w-6 dark:text-white"} />
+                        <Link href={`/containers/${parseContainerName(item)}`}>
+                          <ListBulletIcon className={"h-6 w-6 dark:text-white"} />
+                        </Link>
                       </Flex>
                     </Card>
                   )

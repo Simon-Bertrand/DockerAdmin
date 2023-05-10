@@ -55,8 +55,6 @@ import docker
 class Routes:
     @staticmethod
     def init(app):
-
-  
         @app.route('/<path:path>', methods=["GET", "POST"])
         def catch_all(path):
             if path == path.lstrip("/"):
@@ -74,7 +72,7 @@ class Routes:
                             path
                         )
                 except docker.errors.NotFound as e: 
-                    return Answer.E404(path)
+                    return Answer.E404("Page not found")
                 except Exception as e: 
                     return Answer.BAD_SERVER_OUTPUT("Unknown server side error")
             else: return Answer.E404(path)

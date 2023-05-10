@@ -2,7 +2,7 @@ import { AppContextSchema } from "@/src/context/app"
 import { Dispatch, SetStateAction } from "react"
 
 export interface Answer<T> {
-    payload : T,
+    payload? : T,
     message : string,
     state : number
 }

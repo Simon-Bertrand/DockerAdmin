@@ -12,7 +12,7 @@ from utils.console import console
 from flask import Flask
 import docker
 import threading
-
+import os
 
 class System:
     def __init__(self) -> None:
@@ -46,7 +46,13 @@ class System:
         SocketIOImplementation.init_events(app, socketio, RoomsActive)
         PingRoute.init(app)
 
-        socketio.run(app, debug=True, allow_unsafe_werkzeug=True , use_reloader=False)
+        if os.environ["ENV NODE_ENV"] == "production":
+            from gunicorn.app.wsgiapp import WSGIApplication
+            app = WSGIApplication()
+            app.app_uri = 'manage:app'
+            return app.run()
+        else:  
+            socketio.run(app, debug=True, allow_unsafe_werkzeug=True , use_reloader=False)
 
 
 if __name__ == '__main__':

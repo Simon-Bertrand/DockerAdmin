@@ -4,3 +4,5 @@ docker
 marshmallow
 aiohttp
 simple-websocket
+gunicorn
+gevent

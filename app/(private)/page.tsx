@@ -1,18 +1,14 @@
+import { useAppContext } from "@/src/context/app";
+import HomeComponent from "@/src/views/home";
 import { getContainers } from "docker/api/containers";
+import { info } from "docker/api/info";
+import { IContainers, Info } from "docker/models";
+import { HTTPResponse } from "docker/response";
+import { toast } from "react-toastify";
 
 export default async function HomePage() {
 
-  let res = (await getContainers())
-  console.log(res)
-  return (
-    <main className="p-4 md:p-10 mx-auto max-w-7xl">
-      
-      <h1>Welcome to DockerAdmin</h1>
 
-      <p>
+    return <HomeComponent />
 
-        {JSON.stringify(res)}
-      </p>
-    </main>
-  );
 }

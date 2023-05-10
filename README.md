@@ -4,7 +4,7 @@
   </p>
 </picture>
 
-<div align="center"><strong>Easy to use web server to manage your Docker containers</strong></div>
+<div align="center"><strong>Light and easy to use web server to manage your Docker containers</strong></div>
 <div align="center">Built on NextJS, Flask and Tailwind CSS</div>
 <br />
 <div align="center">

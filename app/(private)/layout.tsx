@@ -7,6 +7,7 @@ import { Suspense } from 'react';
 import 'app/globals.css';
 import { getServerSession } from 'next-auth'
 import { authOptions } from 'pages/api/auth/[...nextauth]';
+import BottomBar from '@/src/widgets/bottombar';
 
 
 export const metadata = {
@@ -20,7 +21,7 @@ export default async function RootLayout({children }: { children: React.ReactNod
   return (
           <body className="h-full ">
             <AppContextProvider>
-              <>
+            <>
                 <MainComponent>
                   <Suspense fallback="...">
                     {/* @ts-expect-error Server Component */}
@@ -29,8 +30,11 @@ export default async function RootLayout({children }: { children: React.ReactNod
                     {children}
                   <AnalyticsWrapper />
                 </MainComponent>
-              </>
+              
+              <BottomBar></BottomBar>
+            </>
             </AppContextProvider>
+            
           </body>
     
   );
