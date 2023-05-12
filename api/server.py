@@ -1,3 +1,6 @@
+import os, sys
+sys.path.insert(1, os.path.join(sys.path[0], 'api'))
+print("Sys path", sys.path)
 import json
 from flask_socketio import SocketIO
 import time
@@ -6,13 +9,14 @@ from utils.answer import Answer
 from middleware import Middleware
 from canals.http.containers import Routes
 from canals.ws import SocketIOImplementation
+
+
 from utils.rooms import RoomsActive
 from utils.threads import ServerThread, ThreadUtils
 from utils.console import console
 from flask import Flask
 import docker
 import threading
-import os
 
 class System:
     def __init__(self) -> None:
@@ -35,7 +39,7 @@ class System:
         self.thread = ServerThread(id="event", func=init)
         ThreadUtils.start_if_not_exists(self.thread)
 
-    def run():
+    def app():
         app = Flask(__name__)
         socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
         app.system = System()
@@ -46,19 +50,10 @@ class System:
         SocketIOImplementation.init_events(app, socketio, RoomsActive)
         PingRoute.init(app)
 
-        if os.environ["ENV NODE_ENV"] == "production":
-            from gunicorn.app.wsgiapp import WSGIApplication
-            app = WSGIApplication()
-            app.app_uri = 'manage:app'
-            return app.run()
-        else:  
-            socketio.run(app, debug=True, allow_unsafe_werkzeug=True , use_reloader=False)
+        return app, socketio
 
 
-if __name__ == '__main__':
-    System.run()
+app,socketio = System.app()
 
-
-
-
-  
+if __name__ == "__main__":
+    socketio.run(app, debug=True, use_reloader=True,host='0.0.0.0', port=5000)

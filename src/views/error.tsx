@@ -15,7 +15,6 @@ import {
 
 import { ArrowPathIcon, ExclamationTriangleIcon} from "@heroicons/react/24/solid";
 export const ErrorComponent : React.FunctionComponent<{ title: string; question: string; retryFunc? : ()=>void}> = ({title, question, retryFunc}) : JSX.Element  => {
-    console.log("Hello")    
     return(
             <>
                 <div className="flex justify-center items-center h-full">

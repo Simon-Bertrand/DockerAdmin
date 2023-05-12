@@ -57,8 +57,8 @@ class Routes:
     def init(app):
         @app.route('/<path:path>', methods=["GET", "POST"])
         def catch_all(path):
+            console.log(f"Received request <{request.method}> for </{path}> by {request.headers.get('X-Forwarded-For', request.remote_addr)}.")
             if path == path.lstrip("/"):
-                console.log(request.method)
                 try :        
                     if request.method=="POST":
                         app.system.docker.api._raise_for_status(app.system.docker.api._post(app.system.docker.api._url("/" + path.lstrip("/") +"?"+request.query_string.decode())))
@@ -71,39 +71,10 @@ class Routes:
                             app.system.docker.api._result(app.system.docker.api._get (app.system.docker.api._url("/" + path.lstrip("/") +"?"+request.query_string.decode())), True),
                             path
                         )
+                    return Answer.E404("Method not found")
                 except docker.errors.NotFound as e: 
                     return Answer.E404("Page not found")
                 except Exception as e: 
                     return Answer.BAD_SERVER_OUTPUT("Unknown server side error")
             else: return Answer.E404(path)
-
-
-        # @app.route('/containers')
-        # def containers(): 
-        #     return Answer.SUCCEED(
-        #         list(map(lambda x:x.attrs, current_app.system.docker.containers.list(all=True))),
-        #         "Succesfully received the containers",
-        #         payload_schema = ContainerSchema(many=True)
-        #     )
-    
-        # @app.route('/containers/<string:name_or_id>')
-        # def container(name_or_id): 
-        #     return Answer.SUCCEED(
-        #         current_app.system.docker.containers.get(name_or_id).attrs,
-        #         "Succesfully received the container",
-        #         payload_schema = ContainerSchema()
-        # )
-
-
-        # @app.route('/containers/<string:name_or_id>/<string:action>')
-        # def container_action(name_or_id, action): 
-
-        #     console.log(action)
-            
-        #     return Answer.SUCCEED(
-        #         current_app.system.docker.containers.get(name_or_id).attrs,
-        #         "Succesfully received the container",
-        #         payload_schema = ContainerSchema()
-        #     )
-
 

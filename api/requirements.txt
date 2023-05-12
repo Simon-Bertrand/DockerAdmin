@@ -6,3 +6,4 @@ aiohttp
 simple-websocket
 gunicorn
 gevent
+gevent-websocket

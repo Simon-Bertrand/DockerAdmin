@@ -40,8 +40,8 @@ function LogInComponent({} : {}) {
           <LogoComponent fontSize='text-xl' justifyContent='center' />
           <h1 className={`pt-2 text-lg`}>Credentials</h1>
           <form onSubmit={onConnect} className="flex-inline space-y-4">
-            <TextInput name='login' placeholder="Login" error={error=="CredentialsSignin"}  />
-            <TextInput name="password" type='password' error={error=="CredentialsSignin"} errorMessage={error=="CredentialsSignin"? "Wrong credentials":""} placeholder="Password"  />
+            <TextInput name='login' placeholder="Login" autoComplete="login" error={error=="CredentialsSignin"}  />
+            <TextInput name="password" type='password' autoComplete="password" error={error=="CredentialsSignin"} errorMessage={error=="CredentialsSignin"? "Wrong credentials":""} placeholder="Password"  />
             <Flex justifyContent='end'>
               <Button size="md" >
                 Connect

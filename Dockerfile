@@ -32,7 +32,6 @@ ENV NODE_ENV=production
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
-
 #COPY --from=builder /app/public ./public
 
 # Automatically leverage output traces to reduce image size
@@ -47,10 +46,11 @@ RUN apk add --update py3-pip
 COPY api/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 COPY /api /app/api
-
-
+COPY /db/store.db /app/db/store.db
+RUN addgroup -S docker
+RUN adduser nextjs docker
 USER nextjs
 EXPOSE 3000
 
 ENV PORT 3000
-CMD ["npx", "concurrently", "--names", "Python,NextJs", "\"python api/server.py\"",  "\"node server.js\""]
+CMD ["npx", "concurrently", "--names", "Python,NextJs", "\"gunicorn -b 0.0.0.0:5000 -k gevent -w 1 api.server:app\"",  "\"node server.js\""]
