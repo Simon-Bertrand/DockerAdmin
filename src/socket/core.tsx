@@ -5,3 +5,7 @@ socket.on('logs', (data) => {
   console.log("received logs event : ", data)
 });
 
+
+socket.on('stats', (data) => {
+  console.log("received stats event : ", data)
+});

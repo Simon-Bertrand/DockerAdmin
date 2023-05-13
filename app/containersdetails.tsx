@@ -435,7 +435,6 @@ export function LogsContainersDetails({ container }: { container: any }) {
 export function StatisticsContainersDetails({container}) {
   const [stats, setStats] = useState<any>({})
   useEffect(() => {
-    console.log(container.Name)
     socket.emit("subscribe_stats", container.Name)
     socket.on('stats', (data) => {
       console.log(data)

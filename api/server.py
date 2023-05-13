@@ -1,6 +1,12 @@
 import os, sys
+
 sys.path.insert(1, os.path.join(sys.path[0], 'api'))
 print("Sys path", sys.path)
+
+import gevent
+from gevent import monkey
+monkey.patch_all()
+
 import json
 from flask_socketio import SocketIO
 import time
@@ -18,6 +24,10 @@ from flask import Flask
 import docker
 import threading
 
+
+
+
+IS_PRODUCTION = os.environ.get("NODE_ENV") == "production"
 class System:
     def __init__(self) -> None:
         self.docker_connected = False
@@ -41,7 +51,8 @@ class System:
 
     def app():
         app = Flask(__name__)
-        socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
+        socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000" if IS_PRODUCTION else "*", async_mode="gevent")
+
         app.system = System()
         app.system.docker_connect()
     
@@ -56,4 +67,11 @@ class System:
 app,socketio = System.app()
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True, use_reloader=True,host='0.0.0.0', port=5000)
+    socketio.run(
+        app,
+        debug = not IS_PRODUCTION,
+        use_reloader = not IS_PRODUCTION,
+        host = '0.0.0.0',
+        port = 5000,
+        #**({"allow_unsafe_werkzeug" : True} if not IS_PRODUCTION else {})
+        )

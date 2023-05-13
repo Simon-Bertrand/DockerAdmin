@@ -40,6 +40,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .venv/
+.venv_unix/
 .ipynb_checkpoints
 *.ipynb/
 
@@ -52,3 +53,7 @@ __pycache__/
 #prisma
 /db/store.db-journal
 /db/migrations
+
+
+
+
