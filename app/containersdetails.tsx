@@ -38,11 +38,12 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { SpinnerComponent } from "../src/widgets/spinner/loading";
 import { useAppContext } from "@/src/context/app";
 import { detectTraefik, parseTraefikRouterRules } from "@/src/utils/traefik";
-import { IContainer, IContainer } from "docker/models";
+import { IContainer } from "docker/models";
 import { HTTPResponse, HTTPResponseData } from "docker/response";
 import { parsePortsDetail } from "@/src/utils/docker";
 import { getContainer } from "docker/api/containers";
 import { toast } from "react-toastify";
+import { useSocketIO, useSocketIOSubscription } from "@/src/hooks/useSocketIO";
 
 const round = (value : number, precision : number) => {
   return Math.floor((value * Math.pow(10,precision)))/Math.pow(10,precision)
@@ -86,51 +87,31 @@ const PageMap =  (container) =>  {
 
 export default function ContainersDetails({name_or_id} : {name_or_id : string}) {
   const [selectedView, setSelectedView] = useState("");
-  const [container, setContainer] = useState<IContainer>({})
+  // const [container, setContainer] = useState<IContainer>({})
 
-  const {store, setStore} = useAppContext()
 
-  // let container = null as  IContainer|null
-
-  // new HTTPResponse(httpResponseData)
-  // .onDockerClientUnavailable(setStore)
-  // .onSuccess(ans => {
-  //   container = ans.payload
-  // })
-  
-    const fetch = async () => {
-      new HTTPResponse<IContainer>(await getContainer(name_or_id))
-      .onDockerClientUnavailable(setStore)
-      .onSuccess(
-        (d)=> {
-          setContainer(d.payload)
-        }
-      )
-      .onFail((message) => {
-        toast.error("Could not fetch the containers : ", message)
-      })
+  const {payload : container} = useSocketIO<IContainer>("container", name_or_id)
+  if (container!==undefined) {
+    return (
+      Object.keys(container).length>0 && 
+      <>
+        <TabList
+        value={selectedView}
+        onValueChange={setSelectedView}
+        className="mt-6"
+        >
+          <Tab value="infos" text="Informations" />
+          <Tab value="env" text="Environment" />
+          <Tab value="logs" text="Logs" />
+          {container.State.Status === "running" ? <Tab value="stats" text="Statistics" /> : <></>}
+        </TabList>
+        {PageMap(container)[selectedView]}
+      </>
+    );
+  } else {
+    return ("Loading")
   }
 
-  useEffect(() => {
-    fetch().then(x=>x)
-  }, [])
-
-  return (
-    Object.keys(container).length>0 && 
-    <>
-      <TabList
-      value={selectedView}
-      onValueChange={setSelectedView}
-      className="mt-6"
-      >
-        <Tab value="infos" text="Informations" />
-        <Tab value="env" text="Environment" />
-        <Tab value="logs" text="Logs" />
-        {container.State.Status === "running" ? <Tab value="stats" text="Statistics" /> : <></>}
-      </TabList>
-      {PageMap(container)[selectedView]}
-    </>
-  );
 }
 
 export function InformationsContainersDetails({ container }: { container: any }) {
@@ -405,20 +386,12 @@ export function EnvironmentContainersDetails({ container }: { container: any }) 
 
 export function LogsContainersDetails({ container }: { container: any }) {
   const [textAeraValue,setTextAeraValue] = useState<Array<String>>([])
+  console.log(container.Name)
+  const {answer}  = useSocketIOSubscription<any>("logs",container.Name )
 
-  useEffect(() => {
-    socket.emit("subscribe_logs", container.Name)
-    socket.on('logs', (data) => {
-      setTextAeraValue(curr => [data, ...curr])
-    });
 
-    return () => {
-      socket.emit("unsubscribe_logs", container.Name)
-      socket.off("logs")
-    }
-  }, [])
 
-  
+  console.log(answer)
 
   return (
     <>
@@ -434,17 +407,17 @@ export function LogsContainersDetails({ container }: { container: any }) {
 
 export function StatisticsContainersDetails({container}) {
   const [stats, setStats] = useState<any>({})
-  useEffect(() => {
-    socket.emit("subscribe_stats", container.Name)
-    socket.on('stats', (data) => {
-      console.log(data)
-      setStats(data)
-    });
-    return () => {
-      socket.emit("unsubscribe_stats", container.Name)
-      socket.off("stats")
-    }
-  }, [])
+  // useEffect(() => {
+  //   socket.emit("subscribe_stats", container.Name)
+  //   socket.on('stats', (data) => {
+  //     console.log(data)
+  //     setStats(data)
+  //   });
+  //   return () => {
+  //     socket.emit("unsubscribe_stats", container.Name)
+  //     socket.off("stats")
+  //   }
+  // }, [])
 
   console.log("stats", {stats})
   let cpu_usage = null

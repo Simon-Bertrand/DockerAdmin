@@ -30,18 +30,14 @@ import { revalidateTag } from "next/cache";
 import { getContainers } from "docker/api/containers";
 import { toast } from "react-toastify";
 import { SpinnerComponent } from "@/src/widgets/spinner/loading";
+import { socket } from "@/src/socket/core";
+import {useSocketIO} from "@/src/hooks/useSocketIO";
 
-import {renderToString} from 'react-dom/server';
+
 
 export default function ContainersTable() {
-  const {store, setStore} = useAppContext()
-  const [data, setData] = useState<{ [x: string]: IContainers[]}>({})
-
-
-
-
+  const { payload, isLoading, refetch } = useSocketIO<IContainers[]>("containers")
   const [tab, setTab] = useState<string>("");
-
 
   const groupRawData = (ans : IContainers[])=> {
     return {
@@ -49,31 +45,13 @@ export default function ContainersTable() {
       ...groupBy(ans.filter((x) => !('com.docker.compose.config-hash' in x.Labels)), (x) => x.Names.join())
     }
   }
-  const fetch = async () => {
-      return new HTTPResponse<IContainers[]>(await getContainers())
-      .onDockerClientUnavailable(setStore)
-      .onSuccess(
-        (d)=> {
-          setData(groupRawData(d.payload))
-        }
-      )
-      .onFail((message) => {
-        toast.error("Could not fetch the containers : ", message)
-      })
-  }
- 
-  useEffect(() => {
-    fetch()
-    
-  }, [])
 
-  useEffect(()=> {
-    if (Object.keys(data).length>0 && tab==="") { setTab(Object.keys(data)[0]) }
-  })
 
+  if (payload!==undefined) {
+    let data = groupRawData(payload)
 
     const getNumberOfContainers = ()=> {
-        return Object.keys(data).map(x => data[x].length).reduce((prev, curr) => prev + curr,0)
+      return Object.keys(data).map(x => data[x].length).reduce((prev, curr) => prev + curr,0)
     }
     const onActionContainer = async (e, item : IContainers, action : "start" | "stop" | "restart" | "kill" | "update" | "pause" | "unpause" | "wait" | "attach") => {
     
@@ -83,10 +61,8 @@ export default function ContainersTable() {
       e.target.classList.replace("cursor-pointer", "cursor-not-allowed")
 
       await actionOnContainer(item.Names[0].replace("/", ""), action).then(x=>x)
-      fetch()
+      refetch()
     }
-
-    
     return (
       Object.keys(data).length>0 && 
       <Card className="card-color-1">
@@ -174,5 +150,36 @@ export default function ContainersTable() {
           </div>
       </Card>
     );
+  } 
+  else {
+    return 'Loading'
+  }
+
+
+
+  // const fetch = async () => {
+  //     return new HTTPResponse<IContainers[]>(await getContainers())
+  //     .onDockerClientUnavailable(setStore)
+  //     .onSuccess(
+  //       (d)=> {
+  //         setData(groupRawData(d.payload))
+  //       }
+  //     )
+  //     .onFail((message) => {
+  //       toast.error("Could not fetch the containers : ", message)
+  //     })
+  // }
+ 
+  // useEffect(() => {
+  //   fetch()
+    
+  // }, [])
+
+  // useEffect(()=> {
+  //   if (Object.keys(data).length>0 && tab==="") { setTab(Object.keys(data)[0]) }
+  // })
+
+
+   
 }
 

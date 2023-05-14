@@ -1,9 +1,5 @@
 flask
-flask-socketio
+python-socketio
 docker
 marshmallow
-aiohttp
-simple-websocket
-gunicorn
-gevent
-gevent-websocket
+uvicorn

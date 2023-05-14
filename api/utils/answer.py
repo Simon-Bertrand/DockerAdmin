@@ -30,6 +30,13 @@ class Answer:
 
     def to_http(self, http_status : HTTPStatus): return HTTPResponse(self, http_status)
 
+    def to_dict(self):
+        return {
+                "message" : self.message,
+                "payload" : self.payload,
+                "state" : self.state
+            }
+
     def make_object(data : dict, message : str, answer_status : AnswerStatus, payload_schema = None):
         return Answer(**{
                 "message" : message,
@@ -45,7 +52,7 @@ class Answer:
         return Answer.make_object({},message, AnswerStatus.FAILED, **kwargs).to_http(HTTPStatus.INTERNAL_SERVER_ERROR)
 
     def SUCCEED(data : dict, message : str, **kwargs):
-        return Answer.make_object(data,message, AnswerStatus.SUCCEED, **kwargs).to_http(HTTPStatus.OK)
+        return Answer.make_object(data,message, AnswerStatus.SUCCEED, **kwargs).to_dict()
 
     def E404(message : str, **kwargs):
         return Answer.make_object({}, message, AnswerStatus.FAILED, **kwargs).to_http(HTTPStatus.NOT_FOUND)

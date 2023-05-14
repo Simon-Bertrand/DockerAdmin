@@ -1,8 +1,6 @@
 
-from gevent.queue import Queue
 import threading
 from flask import copy_current_request_context
-from flask_socketio import emit
 from marshmallow import Schema, fields
 from utils.docker.dockercli import DockerCli, DockerCliStats, ServerThread, ThreadUtils
 
@@ -67,42 +65,49 @@ class SocketIOImplementation:
 
         @socketio.on('subscribe_stats')
         def subscribe_stats(container_name):
-            console.log("Received subscribe stats")
-
             try: app.system.docker.containers.get(container_name)
             except Exception as e: console.log("Couldnt subscribe container name is unknown", e); return None
             RoomsActive.add_to_room("stats~#"+container_name)
             SKIP = 2
-            data = Queue()
-            @copy_current_request_context
-            def execute(queue, signal=None):
-                i=0
-                for el in app.system.docker.containers.get(container_name).stats(decode=True):
+            # @copy_current_request_context
+            # def execute(queue, signal=None):
+            #     i=0
+            #     for el in app.system.docker.containers.get(container_name).stats(decode=True):
             
-                    if i ==0 :
-                        # socketio.emit("logs", "Emmited stats", namespace='/test')
-                        queue.put(el)
-                        console.log("Stats thread running...", queue)
+            #         if i ==0 :
+            #             socketio.emit("logs", "Emmited stats", namespace='/test')
+            #             queue.put(el)
+            #             console.log("Stats thread running...", queue)
 
-                        # socketio.emit("stats", {"test":"test"}, namespace='/test') #to="stats~#"+container_name)
-                    i+=1
-                    if i >=SKIP: i=0
+            #             socketio.emit("stats", {"test":"test"}, namespace='/test') #to="stats~#"+container_name)
+            #         i+=1
+            #         if i >=SKIP: i=0
 
-            def consume_data(data_queue):
-                while True:
-                    data = data_queue.get() # Récupère les données de la file d'attente
-                    socketio.emit('logs', data, namespace='/test', broadcast=True) # Émet les données sur le canal 'logs'
-
-
-       
-            gevent.spawn(execute, data)
+            # gevent.spawn(execute, data)
             # Lancez la fonction de consommation de données avec gevent.spawn()
-            gevent.spawn(consume_data, data)
+          
              # ThreadUtils.start_if_not_exists(thread)
             # thread = ServerThread(id="stats~#"+container_name, func=execute)
-            for el in data:
-                console.log("Data from queue : ", data)
-                emit("logs", el)
+            # def consume_data(data_queue):
+            #     while True:
+            #         data = data_queue.get() # Récupère les données de la file d'attente
+            #         socketio.emit('logs', data, namespace='/test', broadcast=True) # Émet les données sur le canal 'logs'
+
+            emit("logs", "Starting thread") 
+  
+            i=0
+            for el in app.system.docker.containers.get(container_name).stats(stream=True, decode=True):
+                if i ==0 :
+                    eventlet.spawn(lambda x:emit("logs", "Emit received message") )
+                    console.log("Ping from thread")
+                      #to="stats~#"+container_name)
+                i+=1
+                if i >=SKIP: i=0
+
+            emit("logs", "Finishing thread") 
+    
+            console.log("Stats thread running3...")
+    
 
 
 
