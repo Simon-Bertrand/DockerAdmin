@@ -385,19 +385,13 @@ export function EnvironmentContainersDetails({ container }: { container: any }) 
 }
 
 export function LogsContainersDetails({ container }: { container: any }) {
-  const [textAeraValue,setTextAeraValue] = useState<Array<String>>([])
-  console.log(container.Name)
   const {answer}  = useSocketIOSubscription<any>("logs",container.Name )
-
-
-
-  console.log(answer)
 
   return (
     <>
       <Grid numColsMd={1} numColsLg={1} className="gap-6 mt-6  h-fit ">
       <Card className="text-white h-96 overflow-y-auto font-mono card-color-1">
-          {textAeraValue.length >0 && textAeraValue.map((x)=> <p><b>&gt;&gt;&gt;</b> {x}</p>)}
+          {answer.length >0 && answer.reverse().map(x=> new TextDecoder('utf-8').decode(x)).map((x)=> <p><b>&gt;&gt;&gt;</b> {x}</p>)} 
       </Card>
       </Grid>
   
@@ -406,7 +400,10 @@ export function LogsContainersDetails({ container }: { container: any }) {
 }
 
 export function StatisticsContainersDetails({container}) {
-  const [stats, setStats] = useState<any>({})
+  const {answer : unParsedStats}  = useSocketIOSubscription<any>("stats",container.Name )
+  const encoder = new TextDecoder("utf-8")
+  const valueFormatter = (number: number) => `${Intl.NumberFormat("us").format(number).toString()} %`;
+
   // useEffect(() => {
   //   socket.emit("subscribe_stats", container.Name)
   //   socket.on('stats', (data) => {
@@ -419,108 +416,112 @@ export function StatisticsContainersDetails({container}) {
   //   }
   // }, [])
 
-  console.log("stats", {stats})
   let cpu_usage = null
   let cpu_use = null
   let cpu_total_use = null
-  let memory_usage = null
+  // let memory_usage = null
 
-  if(Object.keys(stats).length !== 0) {
+  if(Object.keys(unParsedStats).length !== 0) {
+    const stats = unParsedStats.map(x=> JSON.parse(encoder.decode(x))).slice(-1)[0];
+
     cpu_use = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage
     cpu_total_use = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage
     cpu_usage = round(100*cpu_use/cpu_total_use *stats.cpu_stats.online_cpus, 4)
-    memory_usage = round(100*(stats.memusage_usage)/(stats.memusage_total),4)
+    // memory_usage = round(100*(stats.memusage_usage)/(stats.memusage_total),4)
     if (cpu_usage>1) { cpu_usage=100}
-  }
-  const valueFormatter = (number: number) => `${Intl.NumberFormat("us").format(number).toString()} %`;
-  return (
-    <>
-    <Grid numColsMd={1} numColsLg={1} className="gap-6 mt-6">
-      {(Object.keys(stats).length !== 0 && container.State.Status === "running" && <Card className="max-w-2xl mx-auto w-full card-color-1">
-
-        <Flex>
-        <h3>Statistics</h3>
-        <h5>{container.Name} (#{container.Id.slice(0,16)}...)</h5>
-        <h5>Image : {container.Config.Image}</h5>
-        </Flex>
-        <Divider />
-
-        <Flex className="justify-around">
-          <h5 className="uppercase">CPU Usage</h5>
-          <h5 className="uppercase">Memory Usage</h5>
-
+    return (
+      <>
+      <Grid numColsMd={1} numColsLg={1} className="gap-6 mt-6">
+        {(container.State.Status === "running" && <Card className="max-w-2xl mx-auto w-full card-color-1">
+  
+          <Flex>
+          <h3>Statistics</h3>
+          <h5>{container.Name} (#{container.Id.slice(0,16)}...)</h5>
+          <h5>Image : {container.Config.Image}</h5>
+          </Flex>
+          <Divider />
+  
+          <Flex className="justify-around">
+            <h5 className="uppercase">CPU Usage</h5>
+            <h5 className="uppercase">Memory Usage</h5>
+  
+           
+          </Flex>
+          <Flex className="justify-around">
+            <h5>({(cpu_usage??0)} %)</h5>
+            {/* <h5>({(memory_usage??0)} %)</h5> */}
+          </Flex>
+  
+          <Flex>
+          <DonutChart
+          className="mt-4"
+          data={[{ name: "CPU Used", value: cpu_usage??0, }, { name: "Free CPU", value: (100-(cpu_usage??0)), }]}
+          category="value"
+          index="name"
+          variant="pie"
+          valueFormatter={valueFormatter}
+          colors={["blue", "gray"]}
+          />
+          {/* <DonutChart
+          className="mt-4"
+          data={[{ name: "Memory Used", value: (memory_usage??0), }, { name: "Free memory", value: (100 - (memory_usage??0)), }]}
+          category="value"
+          index="name"
+          variant="pie"
+          valueFormatter={valueFormatter}
+          colors={["blue", "gray"]}
+          /> */}
+          
+          </Flex>
+  
+          <Flex className="justify-around">
+            <h5>{(convertFileSize(cpu_use??0))} / {convertFileSize((cpu_total_use??0))}</h5>
+            {/* <h5>{(convertFileSize(stats.memusage_usage??0))} / {convertFileSize((stats.memusage_total??0))}</h5> */}
+          </Flex>
+  
          
-        </Flex>
-        <Flex className="justify-around">
-          <h5>({(cpu_usage??0)} %)</h5>
-          <h5>({(memory_usage??0)} %)</h5>
-        </Flex>
-
-        <Flex>
-        <DonutChart
-        className="mt-4"
-        data={[{ name: "CPU Used", value: cpu_usage??0, }, { name: "Free CPU", value: (100-(cpu_usage??0)), }]}
-        category="value"
-        index="name"
-        variant="pie"
-        valueFormatter={valueFormatter}
-        colors={["blue", "gray"]}
-        />
-        <DonutChart
-        className="mt-4"
-        data={[{ name: "Memory Used", value: (memory_usage??0), }, { name: "Free memory", value: (100 - (memory_usage??0)), }]}
-        category="value"
-        index="name"
-        variant="pie"
-        valueFormatter={valueFormatter}
-        colors={["blue", "gray"]}
-        />
-        
-        </Flex>
-
-        <Flex className="justify-around">
-          <h5>{(convertFileSize(cpu_use??0))} / {convertFileSize((cpu_total_use??0))}</h5>
-          <h5>{(convertFileSize(stats.memusage_usage??0))} / {convertFileSize((stats.memusage_total??0))}</h5>
-        </Flex>
-
+          <Divider />
+  
+          <h5>Network usage</h5>
        
-        <Divider />
-
-        <h5>Network usage</h5>
-     
-        <Flex className="justify-around">
-        <h2>{convertFileSize(stats.netio_input??"")}</h2>
-        <h2>{convertFileSize(stats.netio_output??"")}</h2>
-        </Flex>
-        <Flex className="justify-around">
-        <h5>Inputs</h5>
-        <h5>Output</h5>
-        </Flex>
-        <Divider />
-        <h5>Disk usage</h5>
-        <Flex className="justify-around">
-        <h2>{convertFileSize(stats.blockio_input??"")}</h2>
-        <h2>{convertFileSize(stats.blockio_output??"")}</h2>
-        </Flex>
-        <Flex className="justify-around">
-        <h5>Inputs</h5>
-        <h5>Output</h5>
-        </Flex>
-      </Card>) || <SpinnerComponent />}
-
-      {container.State.Status !== "running" &&  <Callout
-        className="h-12 mt-4"
-        title="Nothing to show"
-        icon={ExclamationCircleIcon}
-        color="rose"
-      >
-        The container is not running
-      </Callout>}
+          <Flex className="justify-around">
+          <h2>{convertFileSize(stats.netio_input??"")}</h2>
+          <h2>{convertFileSize(stats.netio_output??"")}</h2>
+          </Flex>
+          <Flex className="justify-around">
+          <h5>Inputs</h5>
+          <h5>Output</h5>
+          </Flex>
+          <Divider />
+          <h5>Disk usage</h5>
+          <Flex className="justify-around">
+          <h2>{convertFileSize(stats.blockio_input??"")}</h2>
+          <h2>{convertFileSize(stats.blockio_output??"")}</h2>
+          </Flex>
+          <Flex className="justify-around">
+          <h5>Inputs</h5>
+          <h5>Output</h5>
+          </Flex>
+        </Card>) || <SpinnerComponent />}
+  
+        {container.State.Status !== "running" &&  <Callout
+          className="h-12 mt-4"
+          title="Nothing to show"
+          icon={ExclamationCircleIcon}
+          color="rose"
+        >
+          The container is not running
+        </Callout>}
+        
+      </Grid>
       
-    </Grid>
-    
-    </>
-  )
+      </>
+    )
+  } else {
+    return (<>Loading</>)
+  }
+  
+  
 }
 
 
