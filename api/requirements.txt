@@ -1,5 +1,5 @@
-flask
 python-socketio
 docker
 marshmallow
 uvicorn
+python-dotenv

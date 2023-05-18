@@ -1,7 +1,5 @@
 #!/bin/bash
 python -m venv .venv
-if [[ -f "./.venv/Scripts/activate" ]]; then
-    source ./.venv/Scripts/activate
-fi
+source ./scripts/activate.sh
 pip install -r api/requirements.txt
-npm i
+cd website && npm i && cd ../

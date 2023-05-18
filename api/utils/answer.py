@@ -1,8 +1,8 @@
 
+from dataclasses import dataclass
 from enum import IntEnum
-from http import HTTPStatus
 from marshmallow import Schema, fields
-from flask import Response, jsonify, make_response
+
 
 
 class AnswerStatus(IntEnum):
@@ -19,16 +19,18 @@ class AnswerSchema(Schema):
     state = fields.Integer(required = True)
 
 
-
-
+@dataclass
 class Answer:
-    def __init__(self, state : AnswerStatus, payload : dict = {}, message : str = "" ):
-        if isinstance(payload, dict) and len(payload.keys()) :self.payload = payload
-        if isinstance(payload, list) and len(payload) : self.payload = payload
-        if isinstance(message, str) and message.replace(" ", "")!= "" : self.message = message
-        self.state = state
+    message: str
+    payload: any
+    state: int
 
-    def to_http(self, http_status : HTTPStatus): return HTTPResponse(self, http_status)
+    def __post__init__(self):
+        if not(isinstance(self.payload, (dict, list)) and len(self.payload.keys())>0) :
+            raise ValueError("Invalid arguments type for Answer object")
+        if not(isinstance(self.message, str) and self.message.replace(" ", "")!= "") : 
+            raise ValueError("Invalid arguments type for Answer object")
+  
 
     def to_dict(self):
         return {
@@ -46,20 +48,15 @@ class Answer:
     
     
     def DOCKER_CLIENT_UNAVAILABLE():
-        return Answer.make_object({}, "Failed to connect to the docker client", AnswerStatus.DOCKER_CLIENT_UNAVAILABLE).to_http(HTTPStatus.SERVICE_UNAVAILABLE)
+        return Answer.make_object({}, "Failed to connect to the docker client", AnswerStatus.DOCKER_CLIENT_UNAVAILABLE)
     
-    def BAD_SERVER_OUTPUT(message : str, **kwargs):
-        return Answer.make_object({},message, AnswerStatus.FAILED, **kwargs).to_http(HTTPStatus.INTERNAL_SERVER_ERROR)
-
+    
+    def FAILED(message : str, **kwargs):
+        return Answer.make_object({},message, AnswerStatus.FAILED, **kwargs)
+    
     def SUCCEED(data : dict, message : str, **kwargs):
-        return Answer.make_object(data,message, AnswerStatus.SUCCEED, **kwargs).to_dict()
+        return Answer.make_object(data,message, AnswerStatus.SUCCEED, **kwargs)
 
     def E404(message : str, **kwargs):
-        return Answer.make_object({}, message, AnswerStatus.FAILED, **kwargs).to_http(HTTPStatus.NOT_FOUND)
+        return Answer.make_object({}, message, AnswerStatus.FAILED, **kwargs)
 
-class HTTPResponse():
-    def __new__(self, answer : Answer, http_status : HTTPStatus):
-          return make_response(
-            jsonify(AnswerSchema().dump(answer)),
-            http_status
-          )

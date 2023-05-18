@@ -53,4 +53,4 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT 3000
-CMD ["npx", "concurrently", "--names", "Python,NextJs", "\"gunicorn -b 0.0.0.0:5000 -k gevent -w 1 api.server:app\"",  "\"node server.js\""]
+CMD ["npx", "concurrently", "--names", "Python,NextJs", "\"python api/server.py\"",  "\"node server.js\""]
