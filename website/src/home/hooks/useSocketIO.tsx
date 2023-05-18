@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { socket } from "../socket/connection"
 import { Answer } from "utils/fetch"
 import { toast } from "react-toastify"
-import { useAppContext } from "../context/app"
+import { AppContextSchema, useAppContext } from "../context/app"
 
 export function pingSocketIO( setStore : Dispatch<SetStateAction<AppContextSchema>>) {
     socket.emit("ping", (response : Answer<{system:boolean}>)=>{
