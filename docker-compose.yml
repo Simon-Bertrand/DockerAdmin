@@ -1,9 +1,11 @@
 
 name: "dockeradmin"
 services:
-  frontend:
+  website:
+    container_name: website
     build: .
     ports:
       - "3000:3000"
+      - "5000:5000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

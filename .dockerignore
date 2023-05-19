@@ -1,6 +1,7 @@
 Dockerfile
 .dockerignore
 **/node_modules/
+**/__pycache__/
 npm-debug.log
 README.md
 website/.next

@@ -1,6 +1,7 @@
 "use server";
 
-import { prisma } from "./client";
+import prisma from "./client";
+
 
 
 export async function fetchUsers() {

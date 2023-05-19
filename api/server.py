@@ -53,7 +53,7 @@ class System:
 
 
     def app():
-        load_dotenv(".env", override=True)
+        load_dotenv(".env" if not IS_PRODUCTION else ".env.production", override=True)
         env_vars_needed = [
             "NEXTAUTH_URL",
             "NEXTAUTH_SECRET",
