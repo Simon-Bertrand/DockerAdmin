@@ -3,8 +3,9 @@ import { TextInput } from "@tremor/react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { imagesApi } from "../api/get";
 import { ISearchedImage } from "../models/ISearchedImage";
+import { ModalState } from "../views/ImagesHome";
 
-export function SearchBarComponent ({setModal} : {setModal : Dispatch<SetStateAction<{modal : string, data : object}>>}) {
+export function SearchBarComponent ({setModal} : {setModal : Dispatch<SetStateAction<ModalState>>}) {
     const [search, setSearch] = useState<string>("")
     const [showResults, setShowResults] = useState<ISearchedImage[]>([])
 

@@ -2,8 +2,9 @@ import { PlayIcon, CloudIcon, LinkIcon } from "@heroicons/react/24/solid";
 import { GenericModalComponent } from "components/home/widgets/GenericModal";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
+import { ModalState } from "../views/ImagesHome";
 
-export function DockerHubSelectedComponent ({modal, setModal} : {modal : {modal : string, data : object}, setModal : Dispatch<SetStateAction<{modal : string, data : object}>>}) {
+export function DockerHubSelectedComponent ({modal, setModal} : {modal : ModalState, setModal : Dispatch<SetStateAction<ModalState>>}) {
     return <GenericModalComponent 
     modalTitle={"DockerHub : " + modal.data.name} 
     setModalOpen={() =>null} 

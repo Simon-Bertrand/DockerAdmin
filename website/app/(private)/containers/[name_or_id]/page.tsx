@@ -10,7 +10,7 @@ export const metadata = {
 export default async function IndexPage({
   params
 }: {
-  params: object;
+  params: {name_or_id : string};
 }) {
 
  

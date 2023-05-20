@@ -1,8 +1,9 @@
 import { PlayIcon, CloudIcon, LinkIcon } from "@heroicons/react/24/solid";
 import { GenericModalComponent } from "components/home/widgets/GenericModal";
 import { Dispatch, SetStateAction } from "react";
+import { ModalState } from "../views/ImagesHome";
 
-export function ImageDetailsComponent ({modal, setModal} : {modal : {modal : string, data : object}, setModal : Dispatch<SetStateAction<{modal : string, data : object}>>}) {
+export function ImageDetailsComponent ({modal, setModal} : {modal : ModalState, setModal : Dispatch<SetStateAction<ModalState>>}) {
     return <GenericModalComponent 
     modalTitle={"Image : " + modal.data.name} 
     setModalOpen={() =>null} 

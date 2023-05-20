@@ -22,12 +22,12 @@ const PageMap = (container: IContainer) : {[key:string] : JSX.Element} => {
   }
 }
 
-export default function ContainerDetailsComponent({ name_or_id }: { name_or_id: string }) {
+export default function ContainerDetailsComponent({ name_or_id }: { name_or_id: string }) : JSX.Element {
   const { payload: container } = containersApi.getContainer(name_or_id)
   const [selectedView, setSelectedView] = useState("infos");
   if (container === undefined) { return <SpinnerComponent /> }
+  if (Object.keys(container).length == 0) { return <>Empty details</>}
   return (
-    Object.keys(container).length > 0 &&
     <>
       <TabList
         value={selectedView}

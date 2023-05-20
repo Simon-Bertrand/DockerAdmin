@@ -11,10 +11,12 @@ import { GenericModalComponent } from "components/home/widgets/GenericModal";
 import { SetStateAction, useState } from "react";
 import { DockerHubSelectedComponent } from "../widgets/DockerHubSelected";
 import { ImageDetailsComponent } from "../widgets/ImageDetails";
+export interface ModalState {modal : string, data : {name? : string}}
+
 
 export const ImagesHomeComponent: React.FunctionComponent = (): JSX.Element => {
     const {payload : images} = imagesApi.getImages()
-    const [modal, setModal] = useState<{modal : string, data : object}>({"modal":"", "data":{}})
+    const [modal, setModal] = useState<ModalState>({"modal":"", "data":{}})
 
 
     return (
@@ -40,7 +42,7 @@ export const ImagesHomeComponent: React.FunctionComponent = (): JSX.Element => {
                                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded flex items-center gap-1">
                                     <CloudIcon title="Pull" height={18}></CloudIcon>
                                 </button>
-                                <button onClick={(e) => {setModal({modal:"inspectImage", data:{name : x.RepoTags}})}} className="bg-stone-500 hover:bg-stone-700 text-white font-bold py-1 px-2 rounded flex items-center gap-1">
+                                <button onClick={(e) => {setModal({modal:"inspectImage", data:{name : x.RepoTags[0]}})}} className="bg-stone-500 hover:bg-stone-700 text-white font-bold py-1 px-2 rounded flex items-center gap-1">
                                     <EllipsisVerticalIcon title="Inspect" height={18}></EllipsisVerticalIcon>
                                 </button>
                             </div>
