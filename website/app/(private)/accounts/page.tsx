@@ -1,7 +1,9 @@
 
 import { Card } from '@tremor/react';
 import AccountsListComponent from 'components/accounts/views/AccountsList';
-
+export const metadata = {
+  title: 'Admin Accounts - DockerAdmin',
+};
 
 export default async function IndexPage() {
   return (

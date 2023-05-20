@@ -3,6 +3,9 @@ import ContainerDetailsComponent from "components/containers/views/ContainerDeta
 
 export const dynamic = 'force-dynamic';
 
+export const metadata = {
+  title: 'Container - DockerAdmin',
+};
 
 export default async function IndexPage({
   params

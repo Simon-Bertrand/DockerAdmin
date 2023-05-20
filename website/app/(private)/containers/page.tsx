@@ -2,6 +2,9 @@ import ContainersTableComponent from "components/containers/views/ContainersTabl
 
 
 
+export const metadata = {
+  title: 'Containers - DockerAdmin',
+};
 
 export default async function IndexPage() {
   return (

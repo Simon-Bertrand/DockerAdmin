@@ -5,8 +5,8 @@ import '@src/styles/globals.css';
 
 export const metadata = {
   title: 'DockerAdmin',
-  description:
-    'DockerAdmin\'s panel'
+  description: 'DockerAdmin\'s panel',
+
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
