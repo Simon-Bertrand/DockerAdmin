@@ -22,11 +22,6 @@ export default function User(prismaUser: PrismaClient['user']) {
         })
       },
       async login(credentials: Record<never, string>|undefined): Promise<Omit<user, "password">|null> {
-        console.log("prismaUser:")
-        console.log(await prismaUser.findFirst({
-          select : default_select
-        }) )
-
         return await prismaUser.findFirst({
             where: {
               login: credentials.login,

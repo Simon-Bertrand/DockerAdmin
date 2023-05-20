@@ -23,7 +23,7 @@ class AnswerSchema(Schema):
 class Answer:
     message: str
     payload: any
-    state: int
+    state: AnswerStatus
 
     def __post__init__(self):
         if not(isinstance(self.payload, (dict, list)) and len(self.payload.keys())>0) :

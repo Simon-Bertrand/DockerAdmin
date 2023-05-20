@@ -1,8 +1,7 @@
 
-import '@src/home/styles/globals.css';
-import { robotoLight } from '@src/home/fonts/register';
-import AppWrapper from '@src/home/widgets/AppWrapper';
-
+import { robotoLight } from '@src/fonts/register';
+import AppWrapper from 'components/home/widgets/AppWrapper';
+import '@src/styles/globals.css';
 
 export const metadata = {
   title: 'DockerAdmin',

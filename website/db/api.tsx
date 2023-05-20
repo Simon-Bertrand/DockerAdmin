@@ -24,9 +24,6 @@ export async function updateUser(id :string, login : string, password : string) 
 }
 
 export async function deleteUser(id :string) {
-    console.log({
-        where : {id},
-    })
     return await prisma.user.delete({
         where : {id},
     })

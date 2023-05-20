@@ -16,10 +16,9 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@src/*": ["src/*"],
+      "@src/*": ["globals/*"],
       "@db/*": ["db/*"]
     },
-    
     "plugins": [
       {
         "name": "next"

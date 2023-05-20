@@ -1,14 +1,13 @@
 
 
+import '@src/styles/globals.css';
 import { Suspense } from 'react';
-import '@src/home/styles/globals.css';
 import { authOptions } from 'pages/api/auth/[...nextauth]';
-import { AppContextProvider } from '@src/home/context/app';
-import MainComponent from '@src/home/view/Main';
-import BottomBar from '@src/home/widgets/BottomBar';
-import NavbarComponent from '@src/home/widgets/Navbar';
-
 import { getServerSession } from 'next-auth';
+import { AppContextProvider } from '@src/context/app';
+import MainComponent from 'components/home/views/Main';
+import BottomBar from 'components/home/widgets/BottomBar';
+import NavbarComponent from 'components/home/widgets/Navbar';
 
 
 
@@ -30,9 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <NavbarComponent user={session?.user} />
             </Suspense>
             {children}
-
           </MainComponent>
-
           <BottomBar></BottomBar>
         </>
       </AppContextProvider>

@@ -2,7 +2,8 @@
 import asyncio
 import os, sys
 from dotenv import load_dotenv
-from events import Events
+from event import Events
+import events
 sys.path.insert(1, os.path.join(sys.path[0], 'api'))
 import socketio
 from utils.answer import Answer
@@ -49,7 +50,7 @@ class System:
             self.docker_connected = True
         except Exception as e:
             self.docker = None
-            console.log(f"Could not connect to Docker instance {e}")
+            console.log(f"- [DockerClient] >> Could not connect to Docker instance {e}")
 
 
     def app():
@@ -65,7 +66,7 @@ class System:
 
         missing_env_var = [env_var for env_var in env_vars_needed if not env_var in os.environ]
         if len(missing_env_var)>0:
-            raise Exception("Missing environment variables : ", missing_env_var)
+            raise Exception("Missing environment variables : ", missing_env_var, ". Not booting the SocketIO server. Please restart")
         
 
         sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins=[os.environ.get("NEXTAUTH_URL")])
@@ -86,12 +87,10 @@ class System:
 
         @sio.event
         async def connect(sid, environ, auth=None):
-            console.log("Received auth : ", auth)
             if auth is None : raise ConnectionRefusedError('Please provide credentials')
             if auth.get("login", False)==os.environ.get("SIO_LOGIN", None) and auth.get("password", False)==os.environ.get("SIO_SECRET", None):
-                console.log(f"Successfully connected user (#{sid})")
-            else: 
-                raise ConnectionRefusedError('Authentication failed')
+                console.info("SocketIO", f"New authenticated user connected (#{sid})")
+            else: raise ConnectionRefusedError('Authentication failed')
                 
 
         return app, sio
@@ -120,13 +119,9 @@ async def start_background_task():
 
 
     async def task_to_exe(mode, name, event):
-        
         for el in iterator_getter(mode, name,event):
-            if event.is_set():
-                return
+            if event.is_set(): return
             await sio.emit(f"{mode}/{name}", el)
-            console.log(f"Emitted {mode}/{name} with data : {str(el)[:20]}..." )
-
     futures = []
 
     while True:

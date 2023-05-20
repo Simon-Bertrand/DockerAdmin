@@ -1,6 +1,7 @@
 "use client";
 
-import ErrorComponent from "@src/home/view/Error";
+import ErrorComponent from "components/home/views/Error";
+
 
 
 

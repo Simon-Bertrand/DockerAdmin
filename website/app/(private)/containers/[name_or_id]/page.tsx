@@ -1,4 +1,4 @@
-import ContainersDetails from "@src/containers/view/ContainerDetails/ContainerDetails";
+import ContainerDetailsComponent from "components/containers/views/ContainerDetails/ContainerDetails";
 
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ export default async function IndexPage({
       <h1>Container's detail: {params.name_or_id}</h1>
       <h5>The complete detail of the selected container</h5>
 
-      <ContainersDetails name_or_id={params.name_or_id} ></ContainersDetails>
+      <ContainerDetailsComponent name_or_id={params.name_or_id} ></ContainerDetailsComponent>
     </main>
   );
 }

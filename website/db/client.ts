@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import User from "./model";
+import Console from "utils/console";
 
 
 let prisma : PrismaWrapper
@@ -9,15 +10,16 @@ class PrismaWrapper {
     constructor () {
         this.conn = new PrismaClient()
         this.user = User(this.conn.user)
-
+        Console.server_info("PrismaWrapper", "Instanciated the object")
         const createAccountIfEmpty = async () => {
             if (await this.user.count() === 0) {
                 this.user.create_default_admin()
+                Console.server_info("PrismaWrapper", "Created admin account")
             }
         }
         createAccountIfEmpty()
-        .catch(x=>{console.log("Failed at create default admin account")})
-        .finally(()=> console.log("Created default admin account"))
+        .catch(x=>{Console.server_info("PrismaWrapper", "Failed at create default admin account")})
+        
     }
 }
 

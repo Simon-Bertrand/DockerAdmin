@@ -1,4 +1,4 @@
-import { HomeComponent } from "@src/home/view/Home";
+import HomeComponent from "components/home/views/Home";
 
 
 

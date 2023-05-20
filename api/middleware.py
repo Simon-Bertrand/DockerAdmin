@@ -26,15 +26,16 @@ class Middleware:
 
     
     def wrap(self, func): 
-        async def wrapper(*args, **kwargs):
+        async def wrapper(sid, *args, **kwargs):
             async def wrap_func(*args, **kwargs): 
+                console.info("SocketIO", f"Received query for service <{func.__name__}> by (#{sid})")
                 self.before_request()
                 if not self.app.system.docker_connected: return Answer.DOCKER_CLIENT_UNAVAILABLE().to_dict()
                 try:
                     return self.after_request(await func(*args, **kwargs)).to_dict()
                 except Exception as e: 
                     return Answer.FAILED(str(e) if not IS_PRODUCTION else "Internal Error : An exception occured").to_dict()
-            res = await wrap_func(*args, **kwargs)
-            console.log("Sent response : ", res['state'])
+            res = await wrap_func(sid, *args, **kwargs)
+            console.info("SocketIO", f"Sent response for service <{func.__name__}> : {str(res['state'])} to (#{sid})")
             return res
         return wrapper
